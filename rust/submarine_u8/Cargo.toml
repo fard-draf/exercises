@@ -4,3 +4,6 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+bitflags = "2.9.1"
+borsh = "1.5.7"
+solana-sdk = "2.2.2"
