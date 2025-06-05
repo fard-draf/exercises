@@ -1,3 +1,4 @@
+use core::net;
 use std::mem;
 
 // Contraintes: Un capteur IoT transmet des données via LoRaWAN
@@ -19,12 +20,13 @@ struct VerboseSensor {
 // Total: 17 bytes par capteur = 3400 bytes pour 200 capteurs
 
 // VOTRE MISSION: Compacter tout ça dans une structure optimisée
+#[derive(Debug)]
 #[repr(C, packed)]
 struct CompactSensor {
     // TODO: Utiliser des techniques de bit-packing pour réduire drastiquement
     // Indices:
-    // - id: seulement 200 capteurs max -> 8 bits suffisent
-    // - température: -40°C à +80°C, précision 0.5°C -> combien de valeurs?
+    // - id: seulement 200 capteurs max -> 8 bits suffisent // u8
+    // - température: -40°C à +80°C, précision 0.5°C -> combien de valeurs? // u8
     // - humidity: 0-100% -> 7 bits suffisent
     // - battery: 0-100% -> 7 bits suffisent
     // - is_active: 1 bit
@@ -39,85 +41,99 @@ struct SensorNetwork {
 }
 
 impl CompactSensor {
+    // exctraction
+    const ID_MASK: u64 = 0xFF; //  8 bits a 1
+    const TEMP_MASK: u64 = 0xFF; // 8 bits a 1
+    const HUMIDITY_MASK: u64 = 0x7F; // 7 bits a 1
+    const BATTERY_PERCENT_MASK: u64 = 0x7F; // 7 bits a 1
+    const IS_ACTIVE_MASK: u64 = 0x01; // 1 bits a 1
+    const ERROR_COUNT_MASK: u64 = 0x0F; // 4 bits a 1
+    const LAST_PING_MASK: u64 = 0x7FF; // 11 bits a 1 
+
+    // postion des champs dans le u64
+    const ID_SHIFT: u32 = 0; // 7 
+    const TEMP_SHIFT: u32 = 8; // 8 + 8
+    const HUMIDITY_SHIFT: u32 = 16; // 16 + 7
+    const BATTERY_PERCENT_SHIFT: u32 = 23; // 23 + 7
+    const IS_ACTIVE_SHIFT: u32 = 30; // 30 + 1
+    const ERROR_COUNT_SHIFT: u32 = 31; // 31 + 4
+    const LAST_PING_SHIFT: u32 = 35; // 34 + 11 -> END SHIFT TO 46
+
     fn new() -> Self {
-        CompactSensor { data: 0 }
+        Self { data: 0u64 }
     }
 
     // TODO: Implémenter ces fonctions avec des opérations bit par bit
 
     fn set_id(&mut self, id: u8) {
-        // Utiliser |= et << pour placer l'ID dans les 8 premiers bits
-        todo!()
+        self.data |= (id as u64) << Self::ID_SHIFT;
     }
 
     fn get_id(&self) -> u8 {
         // Utiliser >> et & pour extraire l'ID
-        todo!()
+        ((self.data >> Self::ID_SHIFT) & Self::ID_MASK) as u8
     }
 
     fn set_temperature(&mut self, temp_celsius: f32) {
         // Encoder température: -40°C à +80°C, pas de 0.5°C
         // Formule: encoded = (temp + 40.0) * 2.0
         // Stocker dans les bits 8-15 (8 bits = 256 valeurs = 128°C de range)
-        todo!()
+        self.data |= ((((temp_celsius + 40.0) * 2.0) as u64) & Self::ID_MASK) << Self::TEMP_SHIFT;
     }
 
     fn get_temperature(&self) -> f32 {
         // Décoder: temp = (encoded / 2.0) - 40.0
-        todo!()
+        let decoded = ((self.data >> Self::TEMP_SHIFT) & Self::TEMP_MASK) as f32;
+        (decoded / 2.0) - 40.0
     }
 
     fn set_humidity(&mut self, humidity: u8) {
-        // Stocker dans les bits 16-22 (7 bits = 0-127, on utilise 0-100)
-        todo!()
+        self.data |= ((humidity as u64) & Self::HUMIDITY_MASK) << Self::HUMIDITY_SHIFT;
     }
 
     fn get_humidity(&self) -> u8 {
-        todo!()
+        ((self.data >> Self::HUMIDITY_SHIFT) & Self::HUMIDITY_MASK) as u8
     }
 
     fn set_battery(&mut self, battery: u8) {
-        // Stocker dans les bits 23-29 (7 bits)
-        todo!()
+        self.data |= ((battery as u64) & Self::BATTERY_PERCENT_MASK) << Self::BATTERY_PERCENT_SHIFT;
     }
 
     fn get_battery(&self) -> u8 {
-        todo!()
+        ((self.data >> Self::BATTERY_PERCENT_SHIFT) & Self::BATTERY_PERCENT_MASK) as u8
     }
 
     fn set_active(&mut self, active: bool) {
-        // Bit 30
-        todo!()
+        self.data |= ((active as u64) & Self::IS_ACTIVE_MASK) << Self::IS_ACTIVE_SHIFT;
     }
 
     fn get_active(&self) -> bool {
-        todo!()
+        let data = ((self.data >> Self::IS_ACTIVE_SHIFT) & Self::IS_ACTIVE_MASK) as u8;
+        data == 1
     }
 
     fn set_error_count(&mut self, count: u8) {
-        // Bits 31-34 (4 bits = 0-15 erreurs max)
-        todo!()
+        self.data |= ((count as u64) & Self::ERROR_COUNT_MASK) << Self::ERROR_COUNT_SHIFT;
     }
 
     fn get_error_count(&self) -> u8 {
-        todo!()
+        ((self.data >> Self::ERROR_COUNT_SHIFT) & Self::ERROR_COUNT_MASK) as u8
     }
 
     fn set_last_ping_relative(&mut self, minutes_ago: u16) {
-        // Bits 35-63 (29 bits = ~537M minutes = ~1000 ans de range)
-        // En pratique on veut juste les dernières 24h = 1440 minutes
-        todo!()
+        self.data |= ((minutes_ago as u64) & Self::LAST_PING_MASK) << Self::LAST_PING_SHIFT;
     }
 
     fn get_last_ping_relative(&self) -> u16 {
-        todo!()
+        ((self.data >> Self::LAST_PING_SHIFT) & Self::LAST_PING_MASK) as u16
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 impl SensorNetwork {
     fn new() -> Self {
         SensorNetwork {
-            sensors: [CompactSensor::new(); MAX_SENSORS],
+            sensors: core::array::from_fn(|_| CompactSensor::new()),
             base_timestamp: 0, // À initialiser avec le timestamp actuel
         }
     }
@@ -137,8 +153,13 @@ impl SensorNetwork {
         }
 
         let sensor = &mut self.sensors[id as usize];
-
-        // TODO: Utiliser vos fonctions set_* pour populer le capteur
+        sensor.set_id(id);
+        sensor.set_temperature(temp);
+        sensor.set_humidity(humidity);
+        sensor.set_battery(battery);
+        sensor.set_active(active);
+        sensor.set_error_count(error_count);
+        sensor.set_last_ping_relative(minutes_ago);
 
         Ok(())
     }
@@ -150,9 +171,14 @@ impl SensorNetwork {
 
         let sensor = &self.sensors[id as usize];
 
-        // TODO: Utiliser vos fonctions get_* pour récupérer les données
-
-        todo!()
+        Some((
+            sensor.get_temperature(),
+            sensor.get_humidity(),
+            sensor.get_battery(),
+            sensor.get_active(),
+            sensor.get_error_count(),
+            sensor.get_last_ping_relative(),
+        ))
     }
 
     fn memory_usage(&self) -> usize {
@@ -190,6 +216,12 @@ fn main() {
         println!("Erreur: {}", e);
     }
 
+    if let Err(e) = network.add_sensor(2, 19.5, 95, 97, true, 5, 20) {
+        println!("Erreur {:?}", e);
+    }
+
+    let result = network.get_sensor_data(0);
+    println!("{:#?}", result);
     // TODO: Ajouter vos tests pour vérifier que l'encodage/décodage fonctionne
 
     println!("\n=== TESTS ===");
@@ -198,6 +230,8 @@ fn main() {
 
 #[cfg(test)]
 mod tests {
+    use std::process::id;
+
     use super::*;
 
     #[test]
@@ -217,5 +251,58 @@ mod tests {
     fn test_bit_boundaries() {
         // TODO: Tester les valeurs limites
         // Exemple: température max/min, humidity 100%, etc.
+        let mut network = SensorNetwork::new();
+        if let Err(e) = network.add_sensor(0, 30.0, 55, 10, true, 2, 58) {
+            println!("Erreur: {}", e);
+        }
+        let mut sensor = CompactSensor::new();
+        sensor.set_id(1);
+        sensor.set_temperature(10.5);
+        sensor.set_humidity(58);
+        sensor.set_battery(100);
+        sensor.set_active(false);
+        sensor.set_error_count(14);
+        sensor.set_last_ping_relative(2000);
+        let data = sensor.data;
+        println!("Valeur complète: {}", data);
+        println!("En binaire: {:064b}", data);
+        println!("En hexadécimal: 0x{:016X}", data);
+
+        for shift in (0..64).step_by(8) {
+            let mask = 0xFF << shift;
+            let extracted = (data & mask) >> shift;
+            println!("Bits {}-{}: {}", shift, shift + 7, extracted);
+        }
+
+        // println!(" network {:#?}", &network.sensors[0]);
+        let id_slice: Vec<u64> = network
+            .sensors
+            .iter()
+            .filter_map(|sensor| {
+                let value = (sensor.data & 0xFFFFFFFF);
+                if value != 0 { Some(value) } else { None }
+            })
+            .collect();
+
+        println!("slice {:64b}", id_slice[0]);
+        // assert_eq!(id_slice.pop(), Some(55));
+    }
+
+    #[test]
+    fn test_humidity() {
+        let mut sensor = CompactSensor::new();
+        let original_hum: u8 = 60;
+        sensor.set_humidity(original_hum);
+        let retrieved_hum = sensor.get_humidity();
+        assert!((original_hum == 60))
+    }
+
+    #[test]
+    fn test_temperature_precision() {
+        let mut sensor = CompactSensor::new();
+        let original_temp = 23.5;
+        sensor.set_temperature(original_temp);
+        let retrievied_temp = sensor.get_temperature();
+        assert!((original_temp - retrievied_temp).abs() < 0.1);
     }
 }
