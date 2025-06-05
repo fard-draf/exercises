@@ -1,0 +1,9 @@
+/mnt/repo/dev/warehouse/playground/exercises/rust/submarine_u8/target/debug/deps/libark_serialize-0db72f025a568675.rmeta: /mnt/repo/dev/tools/rust/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ark-serialize-0.4.2/src/lib.rs /mnt/repo/dev/tools/rust/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ark-serialize-0.4.2/src/error.rs /mnt/repo/dev/tools/rust/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ark-serialize-0.4.2/src/flags.rs /mnt/repo/dev/tools/rust/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ark-serialize-0.4.2/src/impls.rs /mnt/repo/dev/tools/rust/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ark-serialize-0.4.2/src/../README.md
+
+/mnt/repo/dev/warehouse/playground/exercises/rust/submarine_u8/target/debug/deps/ark_serialize-0db72f025a568675.d: /mnt/repo/dev/tools/rust/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ark-serialize-0.4.2/src/lib.rs /mnt/repo/dev/tools/rust/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ark-serialize-0.4.2/src/error.rs /mnt/repo/dev/tools/rust/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ark-serialize-0.4.2/src/flags.rs /mnt/repo/dev/tools/rust/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ark-serialize-0.4.2/src/impls.rs /mnt/repo/dev/tools/rust/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ark-serialize-0.4.2/src/../README.md
+
+/mnt/repo/dev/tools/rust/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ark-serialize-0.4.2/src/lib.rs:
+/mnt/repo/dev/tools/rust/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ark-serialize-0.4.2/src/error.rs:
+/mnt/repo/dev/tools/rust/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ark-serialize-0.4.2/src/flags.rs:
+/mnt/repo/dev/tools/rust/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ark-serialize-0.4.2/src/impls.rs:
+/mnt/repo/dev/tools/rust/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/ark-serialize-0.4.2/src/../README.md:

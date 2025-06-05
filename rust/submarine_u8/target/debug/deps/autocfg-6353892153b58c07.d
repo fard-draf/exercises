@@ -1,0 +1,10 @@
+/mnt/repo/dev/warehouse/playground/exercises/rust/submarine_u8/target/debug/deps/libautocfg-6353892153b58c07.rmeta: /mnt/repo/dev/tools/rust/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/autocfg-1.4.0/src/lib.rs /mnt/repo/dev/tools/rust/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/autocfg-1.4.0/src/error.rs /mnt/repo/dev/tools/rust/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/autocfg-1.4.0/src/rustc.rs /mnt/repo/dev/tools/rust/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/autocfg-1.4.0/src/version.rs
+
+/mnt/repo/dev/warehouse/playground/exercises/rust/submarine_u8/target/debug/deps/libautocfg-6353892153b58c07.rlib: /mnt/repo/dev/tools/rust/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/autocfg-1.4.0/src/lib.rs /mnt/repo/dev/tools/rust/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/autocfg-1.4.0/src/error.rs /mnt/repo/dev/tools/rust/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/autocfg-1.4.0/src/rustc.rs /mnt/repo/dev/tools/rust/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/autocfg-1.4.0/src/version.rs
+
+/mnt/repo/dev/warehouse/playground/exercises/rust/submarine_u8/target/debug/deps/autocfg-6353892153b58c07.d: /mnt/repo/dev/tools/rust/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/autocfg-1.4.0/src/lib.rs /mnt/repo/dev/tools/rust/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/autocfg-1.4.0/src/error.rs /mnt/repo/dev/tools/rust/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/autocfg-1.4.0/src/rustc.rs /mnt/repo/dev/tools/rust/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/autocfg-1.4.0/src/version.rs
+
+/mnt/repo/dev/tools/rust/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/autocfg-1.4.0/src/lib.rs:
+/mnt/repo/dev/tools/rust/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/autocfg-1.4.0/src/error.rs:
+/mnt/repo/dev/tools/rust/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/autocfg-1.4.0/src/rustc.rs:
+/mnt/repo/dev/tools/rust/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/autocfg-1.4.0/src/version.rs:
