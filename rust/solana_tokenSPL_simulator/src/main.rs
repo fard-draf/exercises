@@ -323,6 +323,15 @@ mod tests {
         let unpacked = TokenAccount::unpack(&packed).unwrap();
         println!("{:?}", unpacked);
 
+        assert_eq!(original.mint, unpacked.mint);
+        assert_eq!(original.owner, unpacked.owner);
+        assert_eq!(original.amount, unpacked.amount);
+        assert_eq!(original.delegate, unpacked.delegate);
+        assert_eq!(original.state, unpacked.state);
+        assert_eq!(original.is_native, unpacked.is_native);
+        assert_eq!(original.delegated_amount, unpacked.delegated_amount);
+        assert_eq!(original.close_authority, unpacked.close_authority);
+
         // TODO: Ajoutez les assertions pour vérifier l'égalité
     }
 
