@@ -88,7 +88,7 @@ impl CompactSensor {
     fn get_temperature(&self) -> f32 {
         // Décoder: temp = (encoded / 2.0) - 40.0
         // let decoded = ((self.data >> Self::TEMP_SHIFT) & Self::TEMP_MASK) as f32;
-        let decoded = ((self.data >> 8) & 0xFF) as f32;
+        let decoded = ((self.data >> 8) & 0xFF) as f32; //to learn
         (decoded / 2.0) - 40.0
     }
 
