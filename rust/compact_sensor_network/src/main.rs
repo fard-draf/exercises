@@ -66,6 +66,9 @@ impl CompactSensor {
     // TODO: Implémenter ces fonctions avec des opérations bit par bit
 
     fn set_id(&mut self, id: u8) {
+        //nettoyage du receiver
+        self.data &= !(Self::ID_MASK << Self::ID_SHIFT);
+        //pose de la nouvelle valeur
         self.data |= (id as u64) << Self::ID_SHIFT;
     }
 
@@ -78,16 +81,19 @@ impl CompactSensor {
         // Encoder température: -40°C à +80°C, pas de 0.5°C
         // Formule: encoded = (temp + 40.0) * 2.0
         // Stocker dans les bits 8-15 (8 bits = 256 valeurs = 128°C de range)
+        self.data &= !(Self::TEMP_MASK << Self::TEMP_SHIFT);
         self.data |= ((((temp_celsius + 40.0) * 2.0) as u64) & Self::ID_MASK) << Self::TEMP_SHIFT;
     }
 
     fn get_temperature(&self) -> f32 {
         // Décoder: temp = (encoded / 2.0) - 40.0
-        let decoded = ((self.data >> Self::TEMP_SHIFT) & Self::TEMP_MASK) as f32;
+        // let decoded = ((self.data >> Self::TEMP_SHIFT) & Self::TEMP_MASK) as f32;
+        let decoded = ((self.data >> 8) & 0xFF) as f32;
         (decoded / 2.0) - 40.0
     }
 
     fn set_humidity(&mut self, humidity: u8) {
+        self.data &= !(Self::HUMIDITY_MASK) << Self::HUMIDITY_SHIFT;
         self.data |= ((humidity as u64) & Self::HUMIDITY_MASK) << Self::HUMIDITY_SHIFT;
     }
 
@@ -96,6 +102,7 @@ impl CompactSensor {
     }
 
     fn set_battery(&mut self, battery: u8) {
+        self.data &= !(Self::BATTERY_PERCENT_MASK) << Self::BATTERY_PERCENT_SHIFT;
         self.data |= ((battery as u64) & Self::BATTERY_PERCENT_MASK) << Self::BATTERY_PERCENT_SHIFT;
     }
 
@@ -104,6 +111,7 @@ impl CompactSensor {
     }
 
     fn set_active(&mut self, active: bool) {
+        self.data &= !(Self::IS_ACTIVE_MASK) << Self::IS_ACTIVE_SHIFT;
         self.data |= ((active as u64) & Self::IS_ACTIVE_MASK) << Self::IS_ACTIVE_SHIFT;
     }
 
@@ -113,6 +121,7 @@ impl CompactSensor {
     }
 
     fn set_error_count(&mut self, count: u8) {
+        self.data &= !(Self::ERROR_COUNT_MASK) << Self::ERROR_COUNT_SHIFT;
         self.data |= ((count as u64) & Self::ERROR_COUNT_MASK) << Self::ERROR_COUNT_SHIFT;
     }
 
@@ -121,6 +130,7 @@ impl CompactSensor {
     }
 
     fn set_last_ping_relative(&mut self, minutes_ago: u16) {
+        self.data &= !(Self::LAST_PING_MASK) << Self::LAST_PING_SHIFT;
         self.data |= ((minutes_ago as u64) & Self::LAST_PING_MASK) << Self::LAST_PING_SHIFT;
     }
 
