@@ -1,30 +1,27 @@
-struct BitVec {
-    data: Vec<u8>,
-    len: usize,
+fn main() {
+    let id: u8 = 52; // 8bit
+    let value: u8 = 253; // 8 bits
+    let owner: u16 = 5124; // 13 bits 
+    // total of 29 bits -> u32 is ok
+
+    let mut storage = 0u32;
+
+    //let clean storage
+    storage &= !(0xFFFF << 0);
+    storage |= (id as u32) << 0;
+    storage |= ((value as u32) & 0xFF) << 8;
+    storage |= ((owner as u32) & 0x1FFF) << 16;
+    // storage &= !(0xFFFF << 0);
+
+    println!("{:b}", storage);
+
+    let extracted_id = (storage & 0xFF) as u8;
+    println!("{}", extracted_id);
+
+    let extracted_value = ((storage >> 8) & 0xFF) as u8;
+
+    println!("{}", extracted_value);
+
+    let extracted_owner = ((storage >> 16) & 0x1FFF) as u16;
+    println!("{}", extracted_owner)
 }
-
-impl BitVec {
-    fn new() -> Self {
-        BitVec {
-            data: Vec::new(),
-            len: 0,
-        }
-    }
-
-    fn push_bit(&mut self, bit: bool) {
-        if self.len % 8 == 0 {
-            self.data.push(0);
-        }
-
-        let byte_index = self.len / 8;
-        let bit_index = 7 - (self.len % 8);
-
-        if bit {
-            self.data[byte_index] |= 1 << bit_index;
-        }
-
-        self.len += 1;
-    }
-}
-
-fn main() {}
