@@ -56,6 +56,8 @@ impl Pubkey {
     pub const ZERO: Self = Self([0; 32]);
 }
 
+
+}
 /// Structure principale : Token Account (équivalent SPL Token)
 /// Taille exacte : 165 bytes comme dans Solana
 #[derive(Debug, Clone)]
