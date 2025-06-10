@@ -1,64 +1,27 @@
-// Focus: Lifetime bounds et elision rules
-// Pas de métaphore - technique pure
-
-struct DataChunk<'a> {
-    content: &'a str,
-    position: usize,
+// TODO: Ajouter lifetime parameter approprié
+struct TextAnalyzer<'a> {
+    text: &'a str,
+    min_length: usize,
 }
 
-struct Parser<'b> {
-    source: &'b str,
-    chunks: Vec<DataChunk<'b>>,
-}
-
-impl<'b> Parser<'b> {
-    fn new(source: &'b str) -> Self {
-        Self {
-            source,
-            chunks: Vec::new(),
-        }
+// TODO: Implémenter avec lifetime parameter
+impl<'a> TextAnalyzer<'a> {
+    fn new(text: &'a str, min_length: usize) -> Self {
+        TextAnalyzer { text, min_length }
     }
 
-    // TODO: Ajouter un chunk - lifetime automatiquement inféré
-    fn add_chunk(&mut self, start: usize, end: usize) {
-        // Créer DataChunk depuis self.source[start..end]
-        // Ton code ici
-        let chunks = self.source[start..end].split(" ").collect::<Vec<_>>();
-        chunks.iter().enumerate().for_each(|(i, e)| {
-            let data = DataChunk {
-                content: e,
-                position: i,
-            };
-            self.chunks.push(data);
-        });
+    fn word_count(&self) -> usize {
+        self.text
+            .split_whitespace()
+            .filter(|e| e.len() >= self.min_length)
+            .count()
     }
 
-    // TODO: Retourner le chunk le plus long
-    fn longest_chunk(&self) -> Option<&str> {
-        // Trouve le chunk avec content.len() maximum
-        // Return son content
-        // Ton code ici
-        let value = self.chunks.iter().max_by_key(|s| s.content.len());
-        if let Some(value) = value {
-            Some(value.content)
-        } else {
-            None
-        }
-    }
-
-    // TODO: Implémenter cette fonction avec lifetime bound explicite
-    fn process_external<'ext>(&self, external: &'ext str) -> Vec<&'ext str>
-    where
-        'ext: 'b, // external doit vivre au moins aussi longtemps que data
-    {
-        // Retourne vec contenant external si il contient des mots de self.source
-        // Sinon vec vide
-        let ext_chunks = external.split(" ").collect::<Vec<&str>>();
-        if ext_chunks.contains(&self.source) {
-            vec![external]
-        } else {
-            Vec::new()
-        }
+    fn longest_word(&self) -> Option<&str> {
+        self.text
+            .split_whitespace()
+            .filter(|e| e.len() >= self.min_length)
+            .max_by_key(|s| s.len())
     }
 }
 
@@ -67,28 +30,26 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_chunks() {
-        let data = "hellos world rust";
-        let mut parser = Parser::new(data);
+    fn test_word_count() {
+        let analyzer = TextAnalyzer::new("hello world rust", 4);
+        assert_eq!(analyzer.word_count(), 3);
 
-        parser.add_chunk(0, 5); // "hello"
-        parser.add_chunk(6, 11); // "world"
-        parser.add_chunk(12, 16); // "rust"
-
-        assert_eq!(parser.longest_chunk(), Some("hello"));
+        let analyzer2 = TextAnalyzer::new("a bb ccc", 3);
+        assert_eq!(analyzer2.word_count(), 1);
     }
 
     #[test]
-    fn test_lifetime_bound() {
-        let data = "rust";
-        let parser = Parser::new(data);
-        let external = "I love rust programming";
+    fn test_longest_word() {
+        let analyzer = TextAnalyzer::new("hellos world rust", 1);
+        assert_eq!(analyzer.longest_word(), Some("hellos"));
 
-        let result = parser.process_external(external);
-        assert_eq!(result, vec!["I love rust programming"]);
+        let analyzer2 = TextAnalyzer::new("", 1);
+        assert_eq!(analyzer2.longest_word(), None);
+    }
 
-        let external2 = "python is cool";
-        let result2 = parser.process_external(external2);
-        assert_eq!(result2, Vec::<&str>::new());
+    #[test]
+    fn test_first_longest() {
+        let analyzer = TextAnalyzer::new("abce def gh", 1);
+        assert_eq!(analyzer.longest_word(), Some("abce")); // Premier trouvé
     }
 }
