@@ -1,26 +1,46 @@
-// Exercice: Navigation Data Extractor
-// Objectif: Comprendre quand cloner vs référencer
+// Challenge: Multiple lifetime parameters
+// Raw focus: Zero-copy data structures (préparation Solana)
 
-struct NavigationData<'a> {
-    waypoints: Vec<&'a str>,
-    current_heading: String,
+struct Container<'a> {
+    id: &'a str,
+    contents: Vec<&'a str>,
 }
 
-impl<'a> NavigationData<'a> {
-    fn new(waypoints: Vec<&'a str>, heading: String) -> Self {
+struct CargoManifest<'a, 'b> {
+    containers: Vec<Container<'a>>,
+    priority_cargo: Vec<&'b str>, // Peut venir d'une source différente
+}
+
+impl<'a, 'b> CargoManifest<'a, 'b> {
+    fn new(containers: Vec<Container<'a>>) -> Self {
         Self {
-            waypoints,
-            current_heading: heading,
+            containers,
+            priority_cargo: Vec::new(),
         }
     }
 
-    // TODO: Implémenter cette fonction
-    // Retourne: (heading owned, premiers 3 waypoints en &str)
-    fn get_course_summary(&self) -> (String, Vec<&'a str>) {
-        let heading = &self.current_heading;
-        let vec_str = &self.waypoints;
+    // TODO: Ajouter cargo prioritaire depuis une source externe
+    fn add_priority_cargo(&mut self, cargo: &'b str) {
+        if !cargo.is_empty() {
+            self.priority_cargo.push(cargo);
+        }
+        // Ton code ici
+    }
 
-        (heading.to_string(), vec_str.to_vec())
+    // TODO: Retourner (container_ids, priority_items, total_items_count)
+    fn get_manifest_summary(&self) -> (Vec<&'a str>, Vec<&'b str>, usize) {
+        // Ton code ici - attention aux lifetimes !
+        let containers_ids = self.containers.iter().map(|c| c.id).collect::<Vec<_>>();
+        let priority_items = self.priority_cargo.to_vec();
+        let count = containers_ids.iter().chain(priority_items.iter()).count();
+
+        (containers_ids, priority_items, count)
+    }
+
+    //7min45sc
+
+    fn find_container_by_cargo(&self, cargo: &str) -> Option<&Container> {
+        self.containers.iter().find(|e| e.contents.contains(&cargo))
     }
 }
 
@@ -29,25 +49,29 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_course_summary() {
-        let nav = NavigationData::new(
-            vec!["Port", "Starboard", "North", "East"],
-            "270°".to_string(),
-        );
+    fn test_multiple_lifetimes() {
+        let container_data = vec!["CONT001", "CONT002"];
+        let cargo_data = vec!["electronics", "medicine"];
 
-        let (heading, waypoints) = nav.get_course_summary();
+        let containers = vec![
+            Container {
+                id: container_data[0],
+                contents: vec!["laptops", "phones"],
+            },
+            Container {
+                id: container_data[1],
+                contents: vec!["pills", "syringes"],
+            },
+        ];
 
-        assert_eq!(heading, "270°");
-        assert_eq!(waypoints, vec!["Port", "Starboard", "North", "East"]);
-        assert_eq!(waypoints.len(), 4);
-    }
+        let mut manifest = CargoManifest::new(containers);
+        manifest.add_priority_cargo(cargo_data[0]);
+        manifest.add_priority_cargo(cargo_data[1]);
 
-    #[test]
-    fn test_references_valid() {
-        let nav = NavigationData::new(vec!["Alpha", "Beta"], "180°".to_string());
+        let (ids, priority, total) = manifest.get_manifest_summary();
 
-        let (_heading, waypoints) = nav.get_course_summary();
-        // Les références doivent rester valides tant que nav existe
-        assert_eq!(waypoints[0], "Alpha");
+        assert_eq!(ids, vec!["CONT001", "CONT002"]);
+        assert_eq!(priority, vec!["electronics", "medicine"]);
+        assert_eq!(total, 4); // 2 containers + 2 priority items
     }
 }
