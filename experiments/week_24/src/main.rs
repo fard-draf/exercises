@@ -1,79 +1,20 @@
-fn broken_example<'a>() {
-    let result1;
-    {
-        let temp1 = String::from("temporary");
+// Exercice qui FORCE la réflexion
 
-        result1 = &temp1;
-        println!("{result1}");
-    };
+fn extract_and_store(data: &Vec<String>) -> (String, Vec<&str>) {
+    //ce move est impossible si on comsomme data. Un &str est un pointer vers une string donc si la string est consommee, on part sur du dangling pointer.
+    // on peut jouer avec de l Unsafe ou des struct personnalisee mais la valeur ownee doit forcement etre quelque part de referencee sur la memoire.
+    // donc ici clone est necessaire car on ne doit pas consommer la ref data.
+    // let first = data[0].clone(); // Clone donc on peut retourner la data tel quel
+    let first = &data[0]; // le clone n est que deporte a la fin de la portee, si jamais on est contraint en malloc sur des grandes portees, ca peut etre utile.
 
-    let result2 = {
-        let temp2 = String::from("temporary cloned");
-
-        temp2.clone()
-    };
-    println!("{result2}");
-
-    let temp3 = String::from("easy ref");
-    let result3: &str = { &temp3 };
-
-    println!("{result3}");
-
-    let temp4 = String::from("lifetime");
-    let result4 = { goes_and_out(&temp4) };
-    println!("{result4}");
-}
-
-fn goes_and_out<'a>(input: &'a String) -> &'a str {
-    &input
-    // it's an elision rule, so I'm not suppose to use explicited lifetimes
-}
-
-struct Person<'a> {
-    name: &'a str,
-    age: u32,
-}
-
-impl<'a, 'b> Person<'a> {
-    pub fn find_oldest(people: &'b [Person<'a>]) -> Option<&'b Person<'a>> {
-        people.iter().max_by_key(|p| p.age)
-    }
-
-    pub fn get_name_ref(person: &'a Person<'a>) -> &'a str {
-        person.name
-    }
-
-    pub fn create_summary(people: &'a [Person<'b>], prefix: &'a str) -> String {
-        format!("{} {} people.", prefix, people.len())
-    }
+    let refs: Vec<&str> = data.into_iter().map(|s| s.as_ref()).collect::<Vec<_>>(); // ❌ Compile pas !
+    // (first, refs) // si clone au debut
+    (first.to_string(), refs)
 }
 
 fn main() {
-    broken_example();
+    let veccy = vec!["one".to_string(), "two".to_string(), "three".to_string()];
+    let stored = extract_and_store(&veccy);
 
-    let people = [
-        Person {
-            name: "Oliver",
-            age: 32,
-        },
-        Person {
-            name: "Katarina",
-            age: 47,
-        },
-        Person {
-            name: "Dan",
-            age: 12,
-        },
-    ];
-
-    let oldest_person = Person::find_oldest(&people);
-    if let Some(older_person) = oldest_person {
-        println!("The older person is {}.", older_person.name)
-    }
-
-    let get_name = Person::get_name_ref(&people[1]);
-    println!("Hello, I'm {}!", get_name);
-
-    let summary = Person::create_summary(&people, "Here, there are");
-    println!("{}", summary);
+    println!("{:?}", stored);
 }
