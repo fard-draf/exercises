@@ -1,46 +1,64 @@
-// Challenge: Multiple lifetime parameters
-// Raw focus: Zero-copy data structures (préparation Solana)
+// Focus: Lifetime bounds et elision rules
+// Pas de métaphore - technique pure
 
-struct Container<'a> {
-    id: &'a str,
-    contents: Vec<&'a str>,
+struct DataChunk<'a> {
+    content: &'a str,
+    position: usize,
 }
 
-struct CargoManifest<'a, 'b> {
-    containers: Vec<Container<'a>>,
-    priority_cargo: Vec<&'b str>, // Peut venir d'une source différente
+struct Parser<'b> {
+    source: &'b str,
+    chunks: Vec<DataChunk<'b>>,
 }
 
-impl<'a, 'b> CargoManifest<'a, 'b> {
-    fn new(containers: Vec<Container<'a>>) -> Self {
+impl<'b> Parser<'b> {
+    fn new(source: &'b str) -> Self {
         Self {
-            containers,
-            priority_cargo: Vec::new(),
+            source,
+            chunks: Vec::new(),
         }
     }
 
-    // TODO: Ajouter cargo prioritaire depuis une source externe
-    fn add_priority_cargo(&mut self, cargo: &'b str) {
-        if !cargo.is_empty() {
-            self.priority_cargo.push(cargo);
-        }
+    // TODO: Ajouter un chunk - lifetime automatiquement inféré
+    fn add_chunk(&mut self, start: usize, end: usize) {
+        // Créer DataChunk depuis self.source[start..end]
         // Ton code ici
+        let chunks = self.source[start..end].split(" ").collect::<Vec<_>>();
+        chunks.iter().enumerate().for_each(|(i, e)| {
+            let data = DataChunk {
+                content: e,
+                position: i,
+            };
+            self.chunks.push(data);
+        });
     }
 
-    // TODO: Retourner (container_ids, priority_items, total_items_count)
-    fn get_manifest_summary(&self) -> (Vec<&'a str>, Vec<&'b str>, usize) {
-        // Ton code ici - attention aux lifetimes !
-        let containers_ids = self.containers.iter().map(|c| c.id).collect::<Vec<_>>();
-        let priority_items = self.priority_cargo.to_vec();
-        let count = containers_ids.iter().chain(priority_items.iter()).count();
-
-        (containers_ids, priority_items, count)
+    // TODO: Retourner le chunk le plus long
+    fn longest_chunk(&self) -> Option<&str> {
+        // Trouve le chunk avec content.len() maximum
+        // Return son content
+        // Ton code ici
+        let value = self.chunks.iter().max_by_key(|s| s.content.len());
+        if let Some(value) = value {
+            Some(value.content)
+        } else {
+            None
+        }
     }
 
-    //7min45sc
-
-    fn find_container_by_cargo(&self, cargo: &str) -> Option<&Container> {
-        self.containers.iter().find(|e| e.contents.contains(&cargo))
+    // TODO: Implémenter cette fonction avec lifetime bound explicite
+    fn process_external<'ext>(&self, external: &'ext str) -> Vec<&'ext str>
+    where
+        'ext: 'b, // external doit vivre au moins aussi longtemps que data
+    {
+        // Retourne vec contenant external si il contient des mots de self.source
+        // Sinon vec vide
+        let ext_chunks = external.split(" ").collect::<Vec<&str>>();
+        if ext_chunks.contains(&self.source) {
+            vec![external]
+        } else {
+            Vec::new()
+        }
     }
 }
 
@@ -49,29 +67,28 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_multiple_lifetimes() {
-        let container_data = vec!["CONT001", "CONT002"];
-        let cargo_data = vec!["electronics", "medicine"];
+    fn test_chunks() {
+        let data = "hellos world rust";
+        let mut parser = Parser::new(data);
 
-        let containers = vec![
-            Container {
-                id: container_data[0],
-                contents: vec!["laptops", "phones"],
-            },
-            Container {
-                id: container_data[1],
-                contents: vec!["pills", "syringes"],
-            },
-        ];
+        parser.add_chunk(0, 5); // "hello"
+        parser.add_chunk(6, 11); // "world"
+        parser.add_chunk(12, 16); // "rust"
 
-        let mut manifest = CargoManifest::new(containers);
-        manifest.add_priority_cargo(cargo_data[0]);
-        manifest.add_priority_cargo(cargo_data[1]);
+        assert_eq!(parser.longest_chunk(), Some("hello"));
+    }
 
-        let (ids, priority, total) = manifest.get_manifest_summary();
+    #[test]
+    fn test_lifetime_bound() {
+        let data = "rust";
+        let parser = Parser::new(data);
+        let external = "I love rust programming";
 
-        assert_eq!(ids, vec!["CONT001", "CONT002"]);
-        assert_eq!(priority, vec!["electronics", "medicine"]);
-        assert_eq!(total, 4); // 2 containers + 2 priority items
+        let result = parser.process_external(external);
+        assert_eq!(result, vec!["I love rust programming"]);
+
+        let external2 = "python is cool";
+        let result2 = parser.process_external(external2);
+        assert_eq!(result2, Vec::<&str>::new());
     }
 }
