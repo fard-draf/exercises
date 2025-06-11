@@ -1,52 +1,73 @@
-// 🔄 WARM-UP : TextAnalyzer Enhanced (10min)
+// 🎯 Exercice 2: Trait Objects + Lifetimes - Data Processor
+// 📊 Niveau: Medium
+// ⏱️ Durée: 15min
 //
-// 📋 MISSION:
-// Révision concepts J1 + ajout méthode simple
+// 📋 MISSION COMPLETE:
+// Créer un système de processors avec trait objects qui peuvent traiter
+// des données avec différentes lifetimes. Le processor doit pouvoir être
+// stocké et utilisé avec des références temporaires.
 //
-// 📥 AJOUTS À IMPLÉMENTER:
-// - contains_word(&self, word: &str) -> bool
-//   * Case insensitive search
-//   * Respecte min_length filter
-//   * Return true si word trouvé dans text
+// 📥 ENTRÉES:
+// - Trait DataProcessor<'a> avec méthode process(&self, data: &'a str) -> String
+// - ProcessorBox pour stocker Box<dyn DataProcessor<'a> + 'a>
+// - Implémentations concrètes: UpperProcessor, LowerProcessor
 //
-// 📤 TESTS:
-// Tous existants + nouveaux pour contains_word
+// 📤 SORTIES:
+// - ProcessorBox<'a> contenant trait object
+// - process_data(&self, input: &'a str) -> String
+// - Les processors transforment le texte selon leur règle
 //
-// ⚡ SUCCESS CRITERIA:
-// - Compile sans warnings
-// - Tous tests passent
-// - Utilise iterator chains (pas de collect())
+// 📏 RÈGLES MÉTIER:
+// 1. UpperProcessor: convertit en MAJUSCULES
+// 2. LowerProcessor: convertit en minuscules
+// 3. ProcessorBox stocke ANY processor via trait object
+// 4. La lifetime 'a lie les données d'entrée au processor
+// 5. Retourne String owned (pas de lifetime dans output)
+//
+// 🧪 EXEMPLES:
+// let upper = UpperProcessor;
+// let processor_box = ProcessorBox::new(Box::new(upper));
+// assert_eq!(processor_box.process_data("Hello"), "HELLO");
 
-struct TextAnalyzer<'a> {
-    text: &'a str,
-    min_length: usize,
+// TODO: Définir trait avec lifetime parameter
+trait DataProcessor<'a> {
+    fn process(&self, data: &'a str) -> String;
 }
 
-impl<'a> TextAnalyzer<'a> {
-    fn new(text: &'a str, min_length: usize) -> Self {
-        TextAnalyzer { text, min_length }
+// TODO: Implémenter UpperProcessor
+struct UpperProcessor;
+
+// TODO: Implémenter trait pour UpperProcessor
+impl<'a> DataProcessor<'a> for UpperProcessor {
+    fn process(&self, data: &'a str) -> String {
+        data.to_uppercase()
+    }
+}
+
+// TODO: Implémenter LowerProcessor
+struct LowerProcessor;
+
+// TODO: Implémenter trait pour LowerProcessor
+impl<'a> DataProcessor<'a> for LowerProcessor {
+    fn process(&self, data: &'a str) -> String {
+        data.to_lowercase()
+    }
+}
+
+// TODO: Définir ProcessorBox avec trait object + lifetime
+struct ProcessorBox<'a> {
+    processor: Box<dyn DataProcessor<'a> + 'a>,
+}
+
+impl<'a> ProcessorBox<'a> {
+    // TODO: Constructeur qui accepte n'importe quel DataProcessor
+    fn new(processor: Box<dyn DataProcessor<'a> + 'a>) -> Self {
+        Self { processor }
     }
 
-    fn word_count(&self) -> usize {
-        self.text
-            .split_whitespace()
-            .filter(|word| word.len() >= self.min_length)
-            .count()
-    }
-
-    fn longest_word(&self) -> Option<&str> {
-        self.text
-            .split_whitespace()
-            .filter(|word| word.len() >= self.min_length)
-            .max_by_key(|word| word.len())
-    }
-
-    // TODO: Implémenter contains_word
-    fn contains_word(&self, target: &str) -> bool {
-        self.text
-            .split_whitespace()
-            .filter(|word| word.len() >= self.min_length && target.len() > self.min_length)
-            .any(|e| e.to_lowercase() == target.to_lowercase())
+    // TODO: Méthode qui délègue au processor interne
+    fn process_data(&self, input: &'a str) -> String {
+        self.processor.process(input)
     }
 }
 
@@ -55,33 +76,36 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_word_count() {
-        let analyzer = TextAnalyzer::new("hello world rust", 4);
-        assert_eq!(analyzer.word_count(), 3);
+    fn test_upper_processor() {
+        let upper = UpperProcessor;
+        let processor_box = ProcessorBox::new(Box::new(upper));
+
+        assert_eq!(processor_box.process_data("hello world"), "HELLO WORLD");
+        assert_eq!(processor_box.process_data("Rust"), "RUST");
     }
 
     #[test]
-    fn test_longest_word() {
-        let analyzer = TextAnalyzer::new("hellos world rust", 1);
-        assert_eq!(analyzer.longest_word(), Some("hellos"));
+    fn test_lower_processor() {
+        let lower = LowerProcessor;
+        let processor_box = ProcessorBox::new(Box::new(lower));
+
+        assert_eq!(processor_box.process_data("HELLO WORLD"), "hello world");
+        assert_eq!(processor_box.process_data("Rust"), "rust");
     }
 
     #[test]
-    fn test_contains_word() {
-        let analyzer = TextAnalyzer::new("Hello World Rust Programming", 4);
+    fn test_mixed_case() {
+        let upper = UpperProcessor;
+        let processor_box = ProcessorBox::new(Box::new(upper));
 
-        // Case insensitive
-        assert_eq!(analyzer.contains_word("hello"), true);
-        assert_eq!(analyzer.contains_word("WORLD"), true);
+        assert_eq!(processor_box.process_data("CamelCase"), "CAMELCASE");
+    }
 
-        // Respecte min_length (4)
-        assert_eq!(analyzer.contains_word("hi"), false); // Pas dans text
+    #[test]
+    fn test_empty_string() {
+        let lower = LowerProcessor;
+        let processor_box = ProcessorBox::new(Box::new(lower));
 
-        // Word not in text
-        assert_eq!(analyzer.contains_word("python"), false);
-
-        // Exact match required
-        assert_eq!(analyzer.contains_word("program"), false); // "Programming" != "program"
-        assert_eq!(analyzer.contains_word("programming"), true);
+        assert_eq!(processor_box.process_data(""), "");
     }
 }
