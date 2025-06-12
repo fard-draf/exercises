@@ -1,89 +1,52 @@
-// 🎯 Exercice 3: Static Lifetimes - Config Manager
-// 📊 Niveau: Medium
-// ⏱️ Durée: 15min
-//
-// 📋 MISSION COMPLETE:
-// Créer un système de configuration qui gère à la fois:
-// - Des valeurs statiques (constantes du programme)
-// - Des valeurs dynamiques (chargées à runtime)
-// Comprendre quand utiliser 'static vs lifetimes normaux
-//
-// 📥 ENTRÉES:
-// - ConfigValue enum: Static(&'static str) ou Dynamic(String)
-// - ConfigManager qui stocke des configs avec différentes lifetimes
-// - get_value() -> référence avec lifetime approprié
-//
-// 📤 SORTIES:
-// - ConfigValue::Static pour données constantes (compile-time)
-// - ConfigValue::Dynamic pour données runtime (heap-allocated)
-// - get_as_str() -> &str avec lifetime correct selon le variant
-//
-// 📏 RÈGLES MÉTIER:
-// 1. Static variant: référence &'static str (vit toute l'app)
-// 2. Dynamic variant: String owned (convertible en &str temporaire)
-// 3. get_as_str() retourne &str avec lifetime approprié
-// 4. Static configs peuvent être utilisées partout
-// 5. Dynamic configs lifetime liée à l'owner
-//
-// 🧪 EXEMPLES:
-// let static_config = ConfigValue::Static("localhost");
-// let dynamic_config = ConfigValue::Dynamic("127.0.0.1".to_string());
-// assert_eq!(static_config.get_as_str(), "localhost");
-// assert_eq!(dynamic_config.get_as_str(), "127.0.0.1");
+// 🎯 Challenge: Fold Numerical States
+// 📊 Niveau: Easy
+// ⏱️ Durée: 45min
 
-// TODO: Définir ConfigValue enum avec variants Static et Dynamic
-enum ConfigValue {
-    Static(&'static str), // Compile-time constant
-    Dynamic(String),      // Runtime allocated
+use core::num;
+
+pub fn sum_fold(numbers: &[i32]) -> i32 {
+    // TODO: Utiliser fold pour calculer la somme
+    // Accumulateur initial: 0
+    // État: acc + element
+
+    numbers.iter().fold(0i32, |acc, nbr| acc + *nbr)
 }
 
-impl ConfigValue {
-    // TODO: Méthode qui retourne &str avec lifetime approprié
-    // HINT: Static -> 'static, Dynamic -> lifetime de &self
-    fn get_as_str(&self) -> &str {
-        match self {
-            Self::Static(value) => value,
-            Self::Dynamic(value) => value,
-        }
-    }
-
-    // TODO: Vérifie si la config est statique
-    fn is_static(&self) -> bool {
-        matches!(self, Self::Static(_))
-    }
-
-    // TODO: Vérifie si la config est dynamique
-    fn is_dynamic(&self) -> bool {
-        matches!(self, Self::Dynamic(_))
-    }
+pub fn product_fold(numbers: &[i32]) -> i32 {
+    // TODO: Utiliser fold pour calculer le produit
+    // Accumulateur initial: 1
+    // État: acc * element
+    numbers.iter().fold(1i32, |mut acc, &nbr| {
+        acc *= nbr;
+        acc
+    })
 }
 
-// TODO: Manager qui peut stocker plusieurs configs
-struct ConfigManager {
-    host: ConfigValue,
-    port: ConfigValue,
+pub fn min_max_fold(numbers: &[i32]) -> Option<(i32, i32)> {
+    // TODO: Utiliser fold pour trouver min ET max en un seul passage
+    // Accumulateur: Option<(min, max)>
+    // État: mise à jour simultanée min/max
+    numbers.iter().fold(None, |acc, &nbr| match acc {
+        None => Some((nbr, nbr)),
+        Some((min, max)) => Some((min.min(nbr), max.max(nbr))),
+    })
 }
 
-impl ConfigManager {
-    // TODO: Constructeur avec host/port configs
-    fn new(host: ConfigValue, port: ConfigValue) -> Self {
-        Self { host, port }
-    }
-
-    // TODO: Getter pour host config
-    fn get_host(&self) -> &str {
-        self.host.get_as_str()
-    }
-
-    // TODO: Getter pour port config
-    fn get_port(&self) -> &str {
-        self.port.get_as_str()
-    }
-
-    // TODO: Retourne true si toutes les configs sont statiques
-    fn all_static(&self) -> bool {
-        self.host.is_static() && self.port.is_static()
-    }
+pub fn running_average_fold(numbers: &[i32]) -> Vec<f64> {
+    // TODO: Utiliser fold pour calculer les moyennes cumulatives
+    // Accumulateur: (Vec<f64>, somme_courante, count)
+    // État: ajout moyenne dans vec + mise à jour somme/count
+    let (_, _, result) =
+        numbers
+            .iter()
+            .fold((0, 0.0, Vec::new()), |(mut count, sum, mut vec), &nbr| {
+                count += 1;
+                let new_sum = sum + nbr as f64;
+                let average = new_sum / (count) as f64;
+                vec.push(average);
+                (count, new_sum, vec)
+            });
+    result
 }
 
 #[cfg(test)]
@@ -91,54 +54,41 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_static_config() {
-        let config = ConfigValue::Static("localhost");
-
-        assert_eq!(config.get_as_str(), "localhost");
-        assert_eq!(config.is_static(), true);
-        assert_eq!(config.is_dynamic(), false);
+    fn test_sum_fold() {
+        assert_eq!(sum_fold(&[1, 2, 3, 4, 5]), 15);
+        assert_eq!(sum_fold(&[-5, 5, -3, 3]), 0);
+        assert_eq!(sum_fold(&[]), 0);
+        assert_eq!(sum_fold(&[42]), 42);
     }
 
     #[test]
-    fn test_dynamic_config() {
-        let config = ConfigValue::Dynamic("127.0.0.1".to_string());
-
-        assert_eq!(config.get_as_str(), "127.0.0.1");
-        assert_eq!(config.is_static(), false);
-        assert_eq!(config.is_dynamic(), true);
+    fn test_product_fold() {
+        assert_eq!(product_fold(&[2, 3, 4]), 24);
+        assert_eq!(product_fold(&[-2, 3, -1]), 6);
+        assert_eq!(product_fold(&[]), 1);
+        assert_eq!(product_fold(&[0, 100, 200]), 0);
     }
 
     #[test]
-    fn test_config_manager_mixed() {
-        let host = ConfigValue::Static("localhost"); // Constant
-        let port = ConfigValue::Dynamic("8080".to_string()); // Runtime
-
-        let manager = ConfigManager::new(host, port);
-
-        assert_eq!(manager.get_host(), "localhost");
-        assert_eq!(manager.get_port(), "8080");
-        assert_eq!(manager.all_static(), false); // Mixed static/dynamic
+    fn test_min_max_fold() {
+        assert_eq!(min_max_fold(&[3, 1, 4, 1, 5]), Some((1, 5)));
+        assert_eq!(min_max_fold(&[42]), Some((42, 42)));
+        assert_eq!(min_max_fold(&[-10, 0, 10]), Some((-10, 10)));
+        assert_eq!(min_max_fold(&[]), None);
     }
 
     #[test]
-    fn test_config_manager_all_static() {
-        let host = ConfigValue::Static("localhost");
-        let port = ConfigValue::Static("3000");
+    fn test_running_average_fold() {
+        let result = running_average_fold(&[10, 20, 30]);
+        assert_eq!(result, vec![10.0, 15.0, 20.0]);
 
-        let manager = ConfigManager::new(host, port);
+        let result = running_average_fold(&[5]);
+        assert_eq!(result, vec![5.0]);
 
-        assert_eq!(manager.all_static(), true);
-    }
+        let result = running_average_fold(&[]);
+        assert_eq!(result, vec![]);
 
-    #[test]
-    fn test_config_manager_all_dynamic() {
-        let host = ConfigValue::Dynamic("127.0.0.1".to_string());
-        let port = ConfigValue::Dynamic("8080".to_string());
-
-        let manager = ConfigManager::new(host, port);
-
-        assert_eq!(manager.get_host(), "127.0.0.1");
-        assert_eq!(manager.get_port(), "8080");
-        assert_eq!(manager.all_static(), false);
+        let result = running_average_fold(&[1, 2, 3, 4, 5]);
+        assert_eq!(result, vec![1.0, 1.5, 2.0, 2.5, 3.0]);
     }
 }
