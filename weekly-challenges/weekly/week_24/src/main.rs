@@ -1,123 +1,109 @@
-// 🎯 Challenge: Text Analysis with State Tracking
-// 📊 Niveau: Easy-Medium (Consolidation)
-// ⏱️ Durée: 45min
+// 🎯 Challenge: Statistical Fold Patterns
+// 📊 Niveau: Medium (Progressif)
+// ⏱️ Durée: 1h
 
-pub fn alternating_caps_fold(text: &str) -> String {
-    // Alterner majuscule/minuscule sur les LETTRES uniquement
-    // "hello world!" → "HeLlO wOrLd!"
-    // Les espaces/ponctuation ne comptent pas dans l'alternance
-    // Acc: (String, bool) où bool = prochaine lettre en majuscule
-    let (result, _) = text.chars().fold(
-        (String::with_capacity(text.len()), false),
-        |(mut acc, mut next), char| {
-            match ((char.is_whitespace() || char.is_numeric()), next) {
-                (false, false) => (acc.push(char.to_ascii_uppercase()), next = true),
-                (false, true) => (acc.push(char.to_ascii_lowercase()), next = false),
-                (true, false) => (acc.push(char), next = false),
-                (true, true) => (acc.push(char), next = true),
-            };
+use core::num;
 
-            (acc, next)
-        },
-    );
-    result
+#[derive(Debug, PartialEq)]
+pub struct Stats {
+    pub min: f64,
+    pub max: f64,
+    pub mean: f64,
 }
 
-//34min sans aide exterieure
-
-pub fn find_longest_word_fold(text: &str) -> String {
-    // Trouver le mot le plus long (séparé par espaces)
-    // En cas d'égalité, garder le premier
-    // "" si texte vide ou que des espaces
-    // Acc: (current_word, longest_word)
-
-    let (longest, _, _) = text.chars().fold(
-        ("".to_string(), "".to_string(), "".to_string()),
-        |(mut current, longest, mut acc), char| {
-            if !char.is_whitespace() {
-                acc.push(char);
-                acc.clone()
-            } else {
-                current.drain(..);
-                current.push_str(&acc);
-                acc.drain(..);
-                current.clone()
-            };
-
-            let longest = match (current.len(), longest.len()) {
-                (curlen, longlen) if curlen > longlen => current.clone(),
-                (curlen, longlen) if curlen == longlen => longest,
-                _ => longest,
-            };
-
-            (longest, current, acc)
-        },
-    );
-    longest
+// Niveau 1 : Simple moyenne
+pub fn mean(numbers: &[f64]) -> Option<f64> {
+    // Retourne None si vide
+    // Sinon la moyenne
+    if numbers.is_empty() {
+        return None;
+    }
+    let total = numbers.iter().fold(0.0, |acc, nbr| acc + *nbr);
+    Some(total / numbers.len() as f64)
 }
 
-// 1h // bloque sur le dernier longest qui revient tjrs, j arrive pas a garder le premier.
+// Niveau 2 : Variance en un passage (astuce mathématique)
+pub fn variance(numbers: &[f64]) -> Option<f64> {
+    // Variance = E[X²] - (E[X])²
+    // Donc on peut calculer somme et somme_des_carrés en un passage
+    // Retourne None si vide
+    if numbers.is_empty() {
+        return None;
+    }
 
-pub fn bracket_validator_fold(text: &str) -> bool {
-    // Vérifier que les parenthèses sont équilibrées
-    // "(hello (world))" → true
-    // "((hello)" → false
-    // ")" → false (fermeture sans ouverture)
-    // Acc: compteur de parenthèses ouvertes (ou Option<i32> pour gérer erreur)
-    let (result, _) = text
-        .chars()
-        .fold((0, "".to_string()), |(count, mut acc), char| match char {
-            '(' => {
-                println!("( +1");
-                acc.push(char);
-                (count + 1, acc.clone())
-            }
-
-            ')' => {
-                if acc.contains('(') {
-                    println!(") -1");
-                    acc.push(char);
-                    (count - 1, acc.clone())
-                } else {
-                    (count - 2, acc.clone())
-                }
-            }
-
-            _ => (count, acc.clone()),
+    let totals = numbers
+        .iter()
+        .fold((0.0, 0.0, 0), |(mut sum, mut sum_sqr, mut count), &nbr| {
+            sum += nbr;
+            sum_sqr += nbr.powi(2);
+            count += 1;
+            (sum, sum_sqr, count)
         });
 
-    result == 0
+    let variance = (totals.1 / totals.2 as f64) - (totals.0 / totals.2 as f64).powi(2);
+
+    Some(variance)
 }
 
-//40 minutes -> bloque sur le )( mais trouve solution sans aide ext
+// Niveau 3 : Multiple stats simultanées
+pub fn min_max_mean(numbers: &[f64]) -> Option<Stats> {
+    // Calculer min, max et mean en UN SEUL passage
+    // None si vide
+    if numbers.is_empty() {
+        return None;
+    }
 
-pub fn extract_numbers_fold(text: &str) -> Vec<i32> {
-    // Extraire tous les nombres du texte
-    // "abc123def45ghi6" → vec![123, 45, 6]
-    // Nombres négatifs supportés : "x-42y" → vec![-42]
-    // Mais "-" seul n'est pas un nombre
-    // Acc: (Vec<i32>, Option<String>) où String = nombre en construction
-
-    let (result,_) = text.chars()
-        .fold((Vec::<i32>::new(), None::<String>), |(mut acc, mut constr), char | {
-            if char.is_ascii_digit() { 
-                match constr {
-                    Some(ref mut num_str) => num_str.push(char),
-                    None => constr = Some(char.to_string())
-                }
-            }  else {
-                if let Some(num_str) = constr.take() {
-                    if let Ok(num) = num_str.parse()> {
-                        acc.push(char);
-                    }
-                }
-                constr = None;
+    let totals = numbers
+        .iter()
+        .fold((0.0, 0.0, 0.0, 0), |(acc), &nbr| match acc {
+            (0.0, 0.0, 0.0, 0) => (nbr, nbr, nbr, 1),
+            (min, max, mut mean, mut count) => {
+                count += 1;
+                mean += nbr;
+                (min.min(nbr), max.max(nbr), mean, count)
             }
-
-            (acc, constr)
-
         });
 
+    struct Stat {
+        min: f64,
+        max: f64,
+        mean: f64,
+    }
+
+    Some(Stats {
+        min: totals.0,
+        max: totals.1,
+        mean: totals.2 / totals.3 as f64,
+    })
+}
+
+// Niveau 4 : Médiane (nécessite de trier)
+pub fn median(numbers: &[f64]) -> Option<f64> {
+    // D'abord collecter dans un Vec avec fold
+    // Puis trier et trouver la médiane
+    // None si vide
+
+    if numbers.is_empty() {
+        return None;
+    }
+
+    let mut vector = numbers
+        .iter()
+        .fold(Vec::with_capacity(numbers.len()), |mut acc, &nbr| {
+            acc.push(nbr);
+            acc
+        });
+
+    vector.sort_by(|a, b| a.partial_cmp(b).unwrap());
+    let mid = numbers.len() / 2;
+
+    println!("{:?}", vector);
+
+    if numbers.len() % 2 == 1 {
+        Some(vector[mid])
+    } else {
+        Some((vector[mid - 1] + vector[mid]) / 2.0)
+    }
 }
 
 #[cfg(test)]
@@ -125,45 +111,51 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_alternating_caps() {
-        assert_eq!(alternating_caps_fold("hello world"), "HeLlO wOrLd");
-        assert_eq!(alternating_caps_fold("a b c"), "A b C");
-        assert_eq!(alternating_caps_fold("123abc"), "123AbC");
-        assert_eq!(alternating_caps_fold(""), "");
-        assert_eq!(alternating_caps_fold("   "), "   ");
+    fn test_mean() {
+        assert_eq!(mean(&[1.0, 2.0, 3.0, 4.0, 5.0]), Some(3.0));
+        assert_eq!(mean(&[10.0]), Some(10.0));
+        assert_eq!(mean(&[-5.0, 5.0]), Some(0.0));
+        assert_eq!(mean(&[]), None);
     }
 
     #[test]
-    fn test_find_longest_word() {
-        assert_eq!(find_longest_word_fold("the quick brown fox"), "quick");
-        assert_eq!(find_longest_word_fold("a bb ccc dd e"), "ccc");
-        assert_eq!(find_longest_word_fold("equal size"), "equal"); // Premier en cas d'égalité
-        assert_eq!(find_longest_word_fold(""), "");
-        assert_eq!(find_longest_word_fold("   "), "");
-        assert_eq!(find_longest_word_fold("single"), "single");
+    fn test_variance() {
+        // Variance de [1,2,3,4,5] = 2.0
+        let result = variance(&[1.0, 2.0, 3.0, 4.0, 5.0]).unwrap();
+        assert!((result - 2.0).abs() < 0.0001);
+
+        // Variance de valeurs identiques = 0
+        assert_eq!(variance(&[5.0, 5.0, 5.0]), Some(0.0));
+
+        assert_eq!(variance(&[]), None);
     }
 
     #[test]
-    fn test_bracket_validator() {
-        assert!(bracket_validator_fold("(hello)"));
-        assert!(bracket_validator_fold("(a(b)c)"));
-        assert!(bracket_validator_fold("()()()"));
-        assert!(bracket_validator_fold("no brackets here"));
-        assert!(bracket_validator_fold(""));
+    fn test_min_max_mean() {
+        let result = min_max_mean(&[1.0, 5.0, 3.0, 2.0, 4.0]).unwrap();
+        assert_eq!(result.min, 1.0);
+        assert_eq!(result.max, 5.0);
+        assert_eq!(result.mean, 3.0);
 
-        assert!(!bracket_validator_fold("(unclosed"));
-        assert!(!bracket_validator_fold("unopened)"));
-        assert!(!bracket_validator_fold(")("));
-        assert!(!bracket_validator_fold("(a(b)"));
+        let result = min_max_mean(&[42.0]).unwrap();
+        assert_eq!(result.min, 42.0);
+        assert_eq!(result.max, 42.0);
+        assert_eq!(result.mean, 42.0);
+
+        assert_eq!(min_max_mean(&[]), None);
     }
 
     #[test]
-    fn test_extract_numbers() {
-        assert_eq!(extract_numbers_fold("abc123def45"), vec![123, 45]);
-        assert_eq!(extract_numbers_fold("no numbers here"), vec![]);
-        assert_eq!(extract_numbers_fold("-42 and 17"), vec![-42, 17]);
-        assert_eq!(extract_numbers_fold("--5-"), vec![-5]); // Seul -5 est valide
-        assert_eq!(extract_numbers_fold("0001"), vec![1]); // Leading zeros ok
-        assert_eq!(extract_numbers_fold("a0b0c0"), vec![0, 0, 0]);
+    fn test_median() {
+        // Nombre impair d'éléments
+        assert_eq!(median(&[3.0, 1.0, 5.0, 2.0, 4.0]), Some(3.0));
+
+        // Nombre pair d'éléments
+        assert_eq!(median(&[1.0, 2.0, 3.0, 4.0]), Some(2.5));
+
+        // Un seul élément
+        assert_eq!(median(&[42.0]), Some(42.0));
+
+        assert_eq!(median(&[]), None);
     }
 }
