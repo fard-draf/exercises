@@ -24,10 +24,8 @@ pub fn execute_commands_fold(commands: &str) -> ExecutionResult {
     commands
         .split("\n")
         .fold(ExecutionResult::default(), |mut acc, slice| {
-            let parsed = parse_command(slice).map_err(|_| "Unable to parse");
-            println!("PARSED{:?}", parsed);
-            if let Ok(slice) = parsed {
-                match slice {
+            match parse_command(slice.trim()) {
+                Ok(cmd) => match cmd {
                     Command::Set { key, value } => {
                         acc.variables.entry(key).insert_entry(value);
                     }
@@ -50,9 +48,10 @@ pub fn execute_commands_fold(commands: &str) -> ExecutionResult {
                     Command::Clear => {
                         acc.variables.drain();
                     }
-                }
+                },
+                Err(e) => acc.errors.push(e.to_string()),
             }
-            println!("ACC {:?}", acc);
+            println!("ACCU {:#?}", acc);
             acc
         })
 }
@@ -60,83 +59,31 @@ pub fn execute_commands_fold(commands: &str) -> ExecutionResult {
 // Helper function suggérée (optionnelle)
 fn parse_command(line: &str) -> Result<Command, String> {
     // TODO: Parser une ligne en Command enum
-    let parsed: String = line.parse().map_err(|_| "Bad request")?;
+    let parts = line.split_whitespace().collect::<Vec<&str>>();
+    if parts.is_empty() {
+        return Err("Empty command".to_string());
+    }
 
-    match parsed {
-        value if value.to_uppercase().starts_with("SET") => {
-            let (key, value, _) = value
-                .chars()
-                .fold((None::<char>, 0, false), |mut acc, char| {
-                    if char.is_whitespace() {
-                        acc.2 = true;
-                    }
-                    if !char.is_whitespace() && acc.2 && !char.is_numeric() {
-                        acc.0 = Some(char);
-                        // println!("is char {:?}", acc.0);
-                    } else if char.is_numeric() && acc.2 {
-                        acc.1 = acc.1 * 10 + (char as u8 - b'0') as i32;
-                    } else {
-                        let format = format!("Invalid number {}", value);
-                    }
-
-                    println!("DONE {:?}", acc);
-                    acc
-                });
-            if let Some(char) = key {
-                let key = char.to_string();
-                // println!("ADD: Key {}, value {}", key, value);
-                Ok(Command::Set { key, value })
-            } else {
-                Err("unable to parse".to_string())
-            }
+    match parts[0].to_uppercase().as_str() {
+        "SET" if parts.len() == 3 => {
+            let key = parts[1].to_string();
+            let value = parts[2]
+                .parse::<i32>()
+                .map_err(|_| format!("Invalid number: {}", parts[2]))?;
+            Ok(Command::Set { key, value })
         }
-        value if value.to_uppercase().starts_with("ADD") => {
-            let (key, value, _) = value
-                .chars()
-                .fold((None::<char>, 0, false), |mut acc, char| {
-                    if char.is_whitespace() {
-                        acc.2 = true;
-                    }
-                    if !char.is_whitespace() && acc.2 && !char.is_numeric() {
-                        acc.0 = Some(char);
-                    }
-                    if char.is_numeric() && acc.2 {
-                        acc.1 = char.to_string().parse::<i32>().unwrap();
-                    }
-                    acc
-                });
-            if let Some(char) = key {
-                let key = char.to_string();
-                Ok(Command::Add { key, amount: value })
-            } else {
-                Err("unable to parse".to_string())
-            }
+        "ADD" if parts.len() == 3 => {
+            let key = parts[1].to_string();
+            let amount = parts[2]
+                .parse::<i32>()
+                .map_err(|_| format!("Invalid amount: {}", parts[2]))?;
+            Ok(Command::Add { key, amount })
         }
-        value if value.to_uppercase().starts_with("PRINT") => {
-            let (key, _, _) = value
-                .chars()
-                .fold((None::<char>, 0, false), |mut acc, char| {
-                    if char.is_whitespace() {
-                        acc.2 = true;
-                    }
-                    if !char.is_whitespace() && acc.2 && !char.is_numeric() {
-                        acc.0 = Some(char);
-                    }
-                    if char.is_numeric() && acc.2 {
-                        {};
-                    }
-                    acc
-                });
-            if let Some(char) = key {
-                let key = char.to_string();
-                Ok(Command::Print { key })
-            } else {
-                Err("unable to parse".to_string())
-            }
-        }
-
-        value if value.to_uppercase().starts_with("CLEAR") => Ok(Command::Clear),
-        _ => Err("Unvalid command".to_string()),
+        "PRINT" if parts.len() == 2 => Ok(Command::Print {
+            key: parts[1].to_string(),
+        }),
+        "CLEAR" => Ok(Command::Clear),
+        _ => Err("Invalid command".to_string()),
     }
 }
 
