@@ -39,7 +39,7 @@ pub fn running_average_fold(numbers: &[i32]) -> Vec<f64> {
     // TODO: Utiliser fold pour calculer les moyennes cumulatives
     // Accumulateur: (Vec<f64>, somme_courante, count)
     // État: ajout moyenne dans vec + mise à jour somme/count
-    let (sum_vec, sum, count) = numbers.iter().fold((vec![], 0, 0), |mut acc, &nbr| {
+    let (sum_vec, _, _) = numbers.iter().fold((vec![], 0, 0), |mut acc, &nbr| {
         acc.1 += nbr;
         acc.2 += 1;
         let mean = acc.1 as f64 / acc.2 as f64;
