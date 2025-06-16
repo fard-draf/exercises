@@ -3,3 +3,7 @@ pub mod ex2_check_sum;
 pub mod ex3_item_transaction;
 pub mod ex4_loader_conf;
 pub mod ex5_risk_score;
+pub mod ex6_parser_chain;
+pub mod ex7_orders_sim;
+pub mod ex8_parsing_data;
+pub mod ex9_parsing_data_2;
