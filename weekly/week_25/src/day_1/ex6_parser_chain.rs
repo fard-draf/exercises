@@ -44,6 +44,7 @@ pub fn parse_number_string(s: &str) -> Result<Vec<i32>, String> {
         .map_err(|e| format!("Erreur de parsing sur l'élément '{}'", e))
 }
 
+
 #[cfg(test)]
 mod tests {
     use super::*;

@@ -1,3 +1,5 @@
+pub mod ex10_day_challenge;
+pub mod ex11_unleach_ex;
 pub mod ex1_refactoring_try_fold;
 pub mod ex2_check_sum;
 pub mod ex3_item_transaction;

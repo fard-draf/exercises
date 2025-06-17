@@ -33,7 +33,7 @@ fn solution(input: &str) -> Result<HashMap<String, u32>, String> {
 
             acc.insert(key.to_string(), value);
             Ok(acc)
-        })
+        }) 
 }
 
 #[cfg(test)]
