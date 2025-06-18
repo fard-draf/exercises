@@ -81,9 +81,6 @@ pub fn process_transactions(initial_balance: u32, transactions: &[&str]) -> Resu
             acc.highest_balance_seen = acc.final_balance
         }
 
-        let test = b"street";
-        let test2 = String::from("street");
-        let bits = test2.as_bytes();
 
 
         Ok(acc)
@@ -98,8 +95,8 @@ mod tests {
 
     #[test]
     fn test_cas_nominal() {
-        let transactions = ["DEPOSIT:100", "WITHDRAW:30", "DEPOSIT:50"];
-        let expected: Result<SimulationResult,ProcessingError> = Ok(SimulationResult {
+        let _transactions = ["DEPOSIT:100", "WITHDRAW:30", "DEPOSIT:50"];
+        let _expected: Result<SimulationResult,ProcessingError> = Ok(SimulationResult {
             final_balance: 120,
             transactions_processed: 3,
             highest_balance_seen: 150, // 50 (initial) -> 150 -> 120 -> 170. Non, 50 -> 150 -> 120. Le pic est bien 150.
