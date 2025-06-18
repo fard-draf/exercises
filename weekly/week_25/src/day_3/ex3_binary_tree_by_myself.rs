@@ -5,22 +5,22 @@ pub struct Node<T> {
     right: Option<Box<Node<T>>>,
     left: Option<Box<Node<T>>>,
 }
-
+/// On lui donne une valeur, elle garde cette valeur et doit savoir si elle a des enfants (right, left) qui sont du meme type qu elle meme
 pub struct BinaryTree<T> {
     root: Option<Box<Node<T>>>
 }
-
+/// Son seul job et de savoir si elle a une racine. 
 pub struct IntoIter<T> {
     stack: Vec<Box<Node<T>>>
 }
-
+/// IntoIter est l iterateur de BinaryTree. Il doit avoir en memoire quels nodes sont a visiter -> sur la todolist, pour cela, il a une stack de Node
 //==//==//==//==//==//==//==//==//==//==//==//==//==//==//==//==ADD_LOGIC
 
 impl<T: Ord> BinaryTree<T> {
     pub fn new() -> Self {
         BinaryTree { root: None }
     }
-
+// cette methode initialise l instance Binarytree
     pub fn add(&mut self, value: T) {
         let new_node = Box::new(Node { value, right: None, left: None});
         
@@ -30,7 +30,9 @@ impl<T: Ord> BinaryTree<T> {
             self.root = Some(new_node);
         }
     }
-
+// cette methode permet de creer la racine. 
+// La racine existe -> Elle delegue au service adapte Node::add_node 
+// La racine n existe pas -> Initialisation de la racine en node (valeur, right None, left None)
 }
 
 impl<T: Ord> Node<T> {
@@ -49,6 +51,11 @@ impl<T: Ord> Node<T> {
             }    
         }    
     }    
+// add_node doit etre en mesure d ajouter un nouveau noeud au bon endroit.
+// pour cela, elle va comparer la valeur du nouveau noeud avec la sienne.
+// si le noeud est plus grand et qu un enfant right existe -> delagation a l enfant right -> recursion add_node avec current_node = enfant.right 
+// si le noeud est plus grand MAIS que l enfant right n existe pas -> add_node cree le noeud.right sur cette instance, current_node.right = Some(value, None, None)
+// si le noeud est plus petit, meme principe qu avec right mais pour left
 }    
 
 //==//==//==//==//==//==//==//==//==//==//==//==//==//==//==//==BRANCHES_HELPER
@@ -63,7 +70,8 @@ impl<T> IntoIter<T> {
         }
     }
 }
-
+// push_left_branch doit etre en mesure d aller inspecter tous les nodes de left jusqu a trouver left: None, et pour chaque valeur, elle take la valeur pour faire une recursion. Elle push le noeud courant lui meme sur la stack.
+// elle va faire un magnifique move -> si il y a un enfant left -> current_node = node, ce qui  l iteration avec le while let.
 
 //==//==//==//==//==//==//==//==//==//==//==//==//==//==//==//==ITER_LOGIC
 
@@ -82,6 +90,9 @@ impl<T> Iterator for IntoIter<T> {
             }     
         }    
     }    
+// le job de next est de prendre le dernier item sur la stack (pop), de le retourner, mais avant de le retourner, il doit regarder si cette valeur a des enfants right. 
+// si ils en ont, il appelle push_left_branch qui vient investiguer dans cet enfant.right et creuse jusqu a trouver None. Elle pousse egalement tous les enfants left  du current_node sur la stack donc la stack est rechargee.
+// dans tous les cas, le current_node est retourne  
 }    
 
 
@@ -95,7 +106,8 @@ impl<T> IntoIterator for BinaryTree<T> {
         iter
     }    
 }    
-
+// le job d into iter sur BinaryTree est d intialiser un storage adapte pour la stack (ici un Vec)
+// il rempli la pile initialement avec toutes les valeurs de gauches. Toutes les valeurs de gauches seront inspectees tour a tour pour voir si elles ont des valeurs de droite. 
 
 //==//==//==//==//==//==//==//==//==//==//==//==//==//==//==//==TESTS
 
