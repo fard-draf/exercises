@@ -1,31 +1,29 @@
-fn main() {
-    let value = 200;
-    let op = get_high_bit(value);
-    println!("{:b}, 0x{:2X}, {:b}", value, value, op);
-    let input = "bonjour";
-    let reverse = reverse(input);
-    println!("{}", reverse)
+fn two_sort(arr: &[&str]) -> String {
+
+    let mut vec = arr.to_vec();
+    vec.sort_by(|a, b| a.cmp(b));
+    let first = vec[0];
+    first.chars()
+        .map(|e| e.to_string())
+        .collect::<Vec<String>>()
+        .join("***")
+    // first.chars().fold(Vec::<String>::new(), |mut acc, char| {
+    //     acc.push(char.to_string());
+    //     acc
+    // }).join("***");
+
+  
+   
+    
 }
 
-// Pattern 1: Masquage du bit de poids faible
-fn is_even(n: u8) -> bool {
-    (n & 0b1) == 0
-}
+#[cfg(test)]
+mod tests {
+    use super::*;
 
-// Pattern 2: Masquage du bit de poids fort (3 bits)
-fn get_high_bit(n: u8) -> u8 {
-    (n & 0b10000000) >> 0
-    // equivaut a     (n & 0x80) >> 7
-}
-
-// Pattern 3: Extraction de bits du milieu
-fn get_middle_bit(n: u8) -> u8 {
-    (n & 0b010) >> 1
-}
-
-pub fn reverse(input: &str) -> String {
-    input.chars().rev().fold(String::new(), |mut string, i| {
-        string.push(i);
-        string
-    })
+    #[test]
+    fn sample_test_cases() {
+        assert_eq!(two_sort(&["bitcoin", "take", "over", "the", "world", "maybe", "who", "knows", "perhaps"]), "b***i***t***c***o***i***n");
+        assert_eq!(two_sort(&["turns", "out", "random", "test", "cases", "are", "easier", "than", "writing", "out", "basic", "ones"]), "a***r***e");
+    }
 }

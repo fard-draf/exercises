@@ -2,36 +2,36 @@ use std::fmt::Debug;
 
 //==//==//==//==//==//==//==//==//==//==//==//==//==//==//==//==DATA_STRUCTURE
 #[derive(Debug, Clone)]
-pub struct Node<T: Clone> 
-    where 
-        Node<T> : Sized,
-    {
-    value: T, 
+pub struct Node<T: Clone>
+where
+    Node<T>: Sized,
+{
+    value: T,
     right: Option<Box<Node<T>>>,
     left: Option<Box<Node<T>>>,
 }
 
 #[derive(Debug, Clone)]
-pub struct BinaryTree<T: Clone> 
-    where 
-        Node<T> :Sized,
+pub struct BinaryTree<T: Clone>
+where
+    Node<T>: Sized,
 {
     root: Option<Box<Node<T>>>,
 }
 
 #[derive(Debug, Clone)]
-pub struct IntoIter<T: Clone> 
-    where 
-        Node<T> : Clone + Sized,
+pub struct IntoIter<T: Clone>
+where
+    Node<T>: Clone + Sized,
 {
     stack: Vec<(Box<Node<T>>, usize)>,
 }
 
 //==//==//==//==//==//==//==//==//==//==//==//==//==//==//==//==ADD_LOGIC
 
-impl<T: Ord + Copy + Debug + Clone> BinaryTree<T> 
-    where 
-        Node<T> : Clone + Sized,
+impl<T: Ord + Copy + Debug + Clone> BinaryTree<T>
+where
+    Node<T>: Clone + Sized,
 {
     fn new() -> Self {
         Self { root: None }
@@ -52,20 +52,18 @@ impl<T: Ord + Copy + Debug + Clone> BinaryTree<T>
     }
 }
 
-impl<T: Ord + Copy + Debug + Clone> Node<T> 
-    where 
-        Node<T> : Clone + Sized,
+impl<T: Ord + Copy + Debug + Clone> Node<T>
+where
+    Node<T>: Clone + Sized,
 {
     fn add_node(&mut self, mut new_node: Box<Node<T>>) {
         if new_node.value < self.value {
-            
             if let Some(left_node) = &mut self.left {
                 left_node.add_node(new_node);
             } else {
                 self.left = Some(new_node)
             }
         } else {
-            
             if let Some(right_node) = &mut self.right {
                 right_node.add_node(new_node);
             } else {
@@ -76,11 +74,10 @@ impl<T: Ord + Copy + Debug + Clone> Node<T>
 }
 
 //==//==//==//==//==//==//==//==//==//==//==//==//==//==//==//==ITER_LOGIC
-impl<T: Debug + Clone> Iterator for IntoIter<T> 
-
-    where 
-        Node<T> : Clone + Sized,
-        {
+impl<T: Debug + Clone> Iterator for IntoIter<T>
+where
+    Node<T>: Clone + Sized,
+{
     type Item = (T, usize);
 
     fn next(&mut self) -> Option<Self::Item> {
@@ -90,14 +87,15 @@ impl<T: Debug + Clone> Iterator for IntoIter<T>
             }
 
             Some((node.value, depth))
-        } else { None}
-
+        } else {
+            None
+        }
     }
 }
 
-impl<T: Debug + Clone> IntoIterator for BinaryTree<T> 
-    where 
-        Node<T> : Clone,
+impl<T: Debug + Clone> IntoIterator for BinaryTree<T>
+where
+    Node<T>: Clone,
 {
     type Item = (T, usize);
     type IntoIter = IntoIter<T>;
@@ -111,18 +109,15 @@ impl<T: Debug + Clone> IntoIterator for BinaryTree<T>
 
 //==//==//==//==//==//==//==//==//==//==//==//==//==//==//==//==PUSH_LEFT_BRANCH
 impl<T: Debug + Clone> IntoIter<T>
-where 
-    Node<T> : Clone + Sized,
+where
+    Node<T>: Clone + Sized,
 {
-
     fn push_left_branch(&mut self, mut node: Option<Box<Node<T>>>, mut depth: usize) {
         while let Some(mut current_node) = node {
             self.stack.push((current_node.clone(), depth));
             node = current_node.left.take();
             depth += 1;
-
-        }    
-
+        }
     }
 }
 
@@ -134,9 +129,9 @@ struct Analysis<T> {
     depth: usize,
 }
 
-pub fn analyze_tree<T: Ord + Copy + std::fmt::Debug>(tree: BinaryTree<T>) -> Option<(T, usize)> 
-    where 
-        Node<T> : Clone + Sized,
+pub fn analyze_tree<T: Ord + Copy + std::fmt::Debug>(tree: BinaryTree<T>) -> Option<(T, usize)>
+where
+    Node<T>: Clone + Sized,
 {
     // Indice : Le type de l'accumulateur de fold pourrait être Option<Analysis<T>>
     // L'état initial serait None. La première valeur itérée crée le premier `Analysis`.
@@ -167,10 +162,7 @@ mod tests {
     // ...
 
     #[test]
-    fn test_analyze_empty_tree() 
-    {
-
-
+    fn test_analyze_empty_tree() {
         let tree: BinaryTree<i32> = BinaryTree::new();
         assert_eq!(analyze_tree(tree), None);
     }
@@ -198,7 +190,7 @@ mod tests {
         tree.add(10);
         tree.add(5);
         tree.add(15);
-        tree.add(12);   
+        tree.add(12);
         // Profondeur max est au niveau de 3, 7, 12 ou 20 (profondeur 3)
         // Max value est 20
         assert_eq!(analyze_tree(tree), Some((15, 2)));
