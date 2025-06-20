@@ -2,8 +2,8 @@
 //
 // ⚓ MISSION :
 // Implémenter un simulateur de protocole financier qui traite un lot de transactions.
-// Vous devez utiliser `try_fold` pour calculer l'état final du système 
-// (solde, nombre de transactions, pic de solde) en une seule passe, 
+// Vous devez utiliser `try_fold` pour calculer l'état final du système
+// (solde, nombre de transactions, pic de solde) en une seule passe,
 // en vous arrêtant à la première erreur de format ou de logique métier.
 //
 // 📋 SPÉCIFICATIONS :
@@ -39,55 +39,62 @@ pub struct SimulationResult {
 }
 
 // TODO: Implémentez votre solution en utilisant `try_fold`.
-pub fn process_transactions(initial_balance: u32, transactions: &[&str]) -> Result<SimulationResult, ProcessingError> {
+pub fn process_transactions(
+    initial_balance: u32,
+    transactions: &[&str],
+) -> Result<SimulationResult, ProcessingError> {
     let initial_state = SimulationResult {
         final_balance: initial_balance,
         transactions_processed: 0,
         highest_balance_seen: initial_balance,
     };
 
-    transactions.iter().try_fold(initial_state, |mut acc, &command| {
-        if !command.contains(':') {
-            return Err(ProcessingError::InvalidCommand(command.to_string()));
-        }
-        let mut parts = command.split(':');
-        
-        let action = parts.next().ok_or(ProcessingError::InvalidCommand(command.to_string()))?;
-        let str_amount = parts.next().ok_or(ProcessingError::InvalidCommand(command.to_string()))?;
-        
-        if parts.next().is_some() {
-            return Err(ProcessingError::InvalidCommand(command.to_string()));
-        }
+    transactions
+        .iter()
+        .try_fold(initial_state, |mut acc, &command| {
+            if !command.contains(':') {
+                return Err(ProcessingError::InvalidCommand(command.to_string()));
+            }
+            let mut parts = command.split(':');
 
-        let amount = str_amount.parse::<u32>().map_err(|_| ProcessingError::InvalidCommand(command.to_string()))?;
+            let action = parts
+                .next()
+                .ok_or(ProcessingError::InvalidCommand(command.to_string()))?;
+            let str_amount = parts
+                .next()
+                .ok_or(ProcessingError::InvalidCommand(command.to_string()))?;
 
-        match action {
-            "DEPOSIT" => {
-                acc.transactions_processed += 1;
-                acc.final_balance += amount
-            },
-            "WITHDRAW" => {
-                if amount > acc.final_balance {
-                    return Err(ProcessingError::InsufficientFunds);
-                } else {
+            if parts.next().is_some() {
+                return Err(ProcessingError::InvalidCommand(command.to_string()));
+            }
+
+            let amount = str_amount
+                .parse::<u32>()
+                .map_err(|_| ProcessingError::InvalidCommand(command.to_string()))?;
+
+            match action {
+                "DEPOSIT" => {
                     acc.transactions_processed += 1;
-                    acc.final_balance -= amount
+                    acc.final_balance += amount
                 }
-            },
-            _ => return Err(ProcessingError::InvalidCommand(command.to_string()))
-        }
+                "WITHDRAW" => {
+                    if amount > acc.final_balance {
+                        return Err(ProcessingError::InsufficientFunds);
+                    } else {
+                        acc.transactions_processed += 1;
+                        acc.final_balance -= amount
+                    }
+                }
+                _ => return Err(ProcessingError::InvalidCommand(command.to_string())),
+            }
 
-        if acc.final_balance > acc.highest_balance_seen {
-            acc.highest_balance_seen = acc.final_balance
-        }
+            if acc.final_balance > acc.highest_balance_seen {
+                acc.highest_balance_seen = acc.final_balance
+            }
 
-
-
-        Ok(acc)
-    })
+            Ok(acc)
+        })
 }
-
-
 
 #[cfg(test)]
 mod tests {
@@ -96,7 +103,7 @@ mod tests {
     #[test]
     fn test_cas_nominal() {
         let _transactions = ["DEPOSIT:100", "WITHDRAW:30", "DEPOSIT:50"];
-        let _expected: Result<SimulationResult,ProcessingError> = Ok(SimulationResult {
+        let _expected: Result<SimulationResult, ProcessingError> = Ok(SimulationResult {
             final_balance: 120,
             transactions_processed: 3,
             highest_balance_seen: 150, // 50 (initial) -> 150 -> 120 -> 170. Non, 50 -> 150 -> 120. Le pic est bien 150.
@@ -110,7 +117,10 @@ mod tests {
             transactions_processed: 2,
             highest_balance_seen: 100,
         });
-        assert_eq!(process_transactions(0, &transactions_simple), expected_simple);
+        assert_eq!(
+            process_transactions(0, &transactions_simple),
+            expected_simple
+        );
     }
 
     #[test]
@@ -121,7 +131,7 @@ mod tests {
             Err(ProcessingError::InsufficientFunds)
         );
     }
-    
+
     #[test]
     fn test_erreur_format_arrete_traitement() {
         // La commande "DEPOSIT:20" ne doit jamais être traitée car elle vient après l'erreur.
@@ -135,7 +145,10 @@ mod tests {
     #[test]
     fn test_montant_invalide() {
         let transactions = ["DEPOSIT:vingt"];
-        assert!(matches!(process_transactions(0, &transactions), Err(ProcessingError::InvalidCommand(_))));
+        assert!(matches!(
+            process_transactions(0, &transactions),
+            Err(ProcessingError::InvalidCommand(_))
+        ));
     }
 
     #[test]

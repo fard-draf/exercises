@@ -4,16 +4,15 @@ pub fn partition_with_fold<I>(iter: I) -> (Vec<i32>, Vec<i32>)
 where
     I: IntoIterator<Item = i32>,
 {
-
-    iter.into_iter().fold((Vec::new(),Vec::new()), |(mut vec1, mut vec2), val| {
-        if val % 2 == 0 {
-            vec1.push(val);
-        } else {
-            vec2.push(val);
-        }
-        (vec1, vec2)
-    })
-
+    iter.into_iter()
+        .fold((Vec::new(), Vec::new()), |(mut vec1, mut vec2), val| {
+            if val % 2 == 0 {
+                vec1.push(val);
+            } else {
+                vec2.push(val);
+            }
+            (vec1, vec2)
+        })
 }
 
 #[cfg(test)]

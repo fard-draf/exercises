@@ -1,6 +1,9 @@
-use criterion::{criterion_group, criterion_main, Criterion};
+use criterion::{Criterion, criterion_group, criterion_main};
 use std::hint::black_box;
-use week_25::day_2::ex1_bench::{sum_iterator_fold, sum_iterator_sum, sum_manual_loop, stack_vec_by_fold, stack_vec_by_loop, stack_vec_by_loop_with_capacity, stack_vec_by_map};
+use week_25::day_2::ex1_bench::{
+    stack_vec_by_fold, stack_vec_by_loop, stack_vec_by_loop_with_capacity, stack_vec_by_map,
+    sum_iterator_fold, sum_iterator_sum, sum_manual_loop,
+};
 
 // Supposons que vos fonctions sont dans votre crate principal (lib.rs ou main.rs)
 // et qu'il faut les rendre publiques pour le benchmark.
@@ -35,8 +38,6 @@ fn benchmark_sum(c: &mut Criterion) {
     // let owned_strings: Vec<String> = (0..1000).map(|i| i.to_string()).collect();
     // let string_slices: Vec<&str> = owned_strings.iter().map(|s| s.as_str()).collect();
     // let data = black_box(&string_slices);
-
-
 
     group.bench_function("Manual For Loop", |b| {
         b.iter(|| stack_vec_by_loop(black_box(&data)));

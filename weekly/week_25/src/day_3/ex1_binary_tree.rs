@@ -2,15 +2,14 @@ use std::fmt::Debug;
 
 //==============================================================================DATA_STRUCTURE
 pub struct BinaryTree<T> {
-    root: Option<Box<Node<T>>>
+    root: Option<Box<Node<T>>>,
 }
 
 #[derive(Debug)]
 struct Node<T> {
-    value : T,
+    value: T,
     left: Option<Box<Node<T>>>,
     right: Option<Box<Node<T>>>,
-    
 }
 
 #[derive(Debug)]
@@ -22,20 +21,23 @@ impl<T: Debug> IntoIter<T> {
     fn push_left_branch(&mut self, mut node: Option<Box<Node<T>>>) {
         while let Some(mut current_node) = node {
             node = current_node.left.take();
-            self.stack.push(current_node);     
+            self.stack.push(current_node);
         }
     }
-
-} 
+}
 //==============================================================================ADD_LOGIC
 impl<T: Ord + Debug> BinaryTree<T> {
     pub fn new() -> Self {
         BinaryTree { root: None }
     }
-    
+
     pub fn add(&mut self, value: T) {
         println!("ROUND {:#?}", value);
-        let new_node = Box::new(Node {value, left : None, right: None});
+        let new_node = Box::new(Node {
+            value,
+            left: None,
+            right: None,
+        });
         if let Some(root) = &mut self.root {
             root.add(new_node);
             println!("added : {:#?}", root);
@@ -61,7 +63,7 @@ impl<T: Ord> Node<T> {
                 self.right = Some(new_node);
             }
         }
-    } 
+    }
 }
 //==============================================================================TREE ITERATOR -> APPEL INITIAL
 impl<T: Debug> IntoIterator for BinaryTree<T> {
@@ -69,31 +71,23 @@ impl<T: Debug> IntoIterator for BinaryTree<T> {
     type IntoIter = IntoIter<T>;
 
     fn into_iter(self) -> Self::IntoIter {
-        
         // TODO: Initialiser l'état de l'itérateur.
         // Pour un parcours in-order, il faut "empiler" tous les nœuds de gauche en partant de la racine.
         // Crée une fonction privée pour ça !
-        
-        let mut iter = IntoIter {stack: Vec::new()};
+
+        let mut iter = IntoIter { stack: Vec::new() };
         iter.push_left_branch(self.root);
 
         println!("Stack state: {:#?}", iter);
-        
-        
-        iter
-        
-        
-        
-    }
-    
-    
-}    
 
+        iter
+    }
+}
 
 //==============================================================================ITERATOR LOGIC
 impl<T: Debug> Iterator for IntoIter<T> {
     type Item = T;
-    
+
     fn next(&mut self) -> Option<Self::Item> {
         // TODO: C'est le cœur de l'exercice.
         // L'algorithme général :
@@ -102,11 +96,9 @@ impl<T: Debug> Iterator for IntoIter<T> {
         // 3. Si oui, il faut empiler tous les enfants gauches de ce sous-arbre droit.
         // 4. Retourner la valeur du nœud dépilé.
         // 5. Si la pile est vide, le parcours est terminé
-         match self.stack.pop() {
+        match self.stack.pop() {
             // Empty node, it's over
-            None => {                
-                None
-            },
+            None => None,
             Some(mut node_to_return) => {
                 // There is a node but we have to check if it had some kids before to return it.
                 if let Some(right_child) = node_to_return.right.take() {
@@ -117,8 +109,6 @@ impl<T: Debug> Iterator for IntoIter<T> {
                 Some(node_to_return.value)
             }
         }
-
-               
     }
 }
 

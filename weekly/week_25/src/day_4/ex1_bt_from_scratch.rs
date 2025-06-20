@@ -1,17 +1,16 @@
-
 //==//==//==//==//==//==//==//==//==//==//==//==//==//==//==//==DATA_STRUCTURE
 pub struct Node<T> {
     value: T,
     right: Option<Box<Node<T>>>,
-    left: Option<Box<Node<T>>>
+    left: Option<Box<Node<T>>>,
 }
 
 pub struct BinaryTree<T> {
-    root: Option<Box<Node<T>>>
+    root: Option<Box<Node<T>>>,
 }
 
 pub struct IntoIter<T> {
-    stack: Vec<Box<Node<T>>>
+    stack: Vec<Box<Node<T>>>,
 }
 
 //==//==//==//==//==//==//==//==//==//==//==//==//==//==//==//==ADD_LOGIC
@@ -22,16 +21,18 @@ impl<T: Ord> BinaryTree<T> {
     }
 
     fn add(&mut self, value: T) {
-        let new_node = Box::new(Node { value, right: None, left: None});
+        let new_node = Box::new(Node {
+            value,
+            right: None,
+            left: None,
+        });
 
         if let Some(root) = &mut self.root {
             root.add_node(new_node);
         } else {
             self.root = Some(new_node);
         }
-
     }
-
 }
 
 impl<T: Ord> Node<T> {
@@ -52,9 +53,6 @@ impl<T: Ord> Node<T> {
     }
 }
 
-
-
-
 //==//==//==//==//==//==//==//==//==//==//==//==//==//==//==//==ITER_LOGIC
 impl<T> Iterator for IntoIter<T> {
     type Item = T;
@@ -62,7 +60,7 @@ impl<T> Iterator for IntoIter<T> {
         match self.stack.pop() {
             None => None,
             Some(node_to_return) => {
-                if let Some(mut right_node) = node_to_return.right {
+                if let Some(right_node) = node_to_return.right {
                     self.push_left_branch(Some(right_node));
                 }
                 Some(node_to_return.value)
@@ -76,9 +74,9 @@ impl<T> IntoIterator for BinaryTree<T> {
     type IntoIter = IntoIter<T>;
 
     fn into_iter(self) -> Self::IntoIter {
-        let mut iter = IntoIter {stack: Vec::new()};
+        let mut iter = IntoIter { stack: Vec::new() };
         iter.push_left_branch(self.root);
-        iter        
+        iter
     }
 }
 
@@ -91,7 +89,6 @@ impl<T> IntoIter<T> {
         }
     }
 }
-
 
 //==//==//==//==//==//==//==//==//==//==//==//==//==//==//==//==TESTS
 #[cfg(test)]

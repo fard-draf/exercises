@@ -79,7 +79,6 @@ fn parse_order_line(line: &str, line_number: usize) -> Result<OrderItem, OrderEr
         return Err(OrderError::InvalidFormat(line_number));
     };
 
-
     Ok(OrderItem {
         product_id,
         quantity,

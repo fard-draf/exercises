@@ -6,7 +6,10 @@ pub struct Collatz {
 impl Collatz {
     /// Crée un nouvel itérateur de Collatz.
     pub fn new(start: u64) -> Self {
-       Collatz { current: start, is_finished: false }
+        Collatz {
+            current: start,
+            is_finished: false,
+        }
     }
 }
 
@@ -26,7 +29,7 @@ impl Iterator for Collatz {
         if self.is_finished {
             return None;
         }
-       
+
         let actual_number = self.current;
         if actual_number == 1 {
             self.is_finished = true;
@@ -35,15 +38,13 @@ impl Iterator for Collatz {
 
         if !self.is_finished {
             let next_number = if actual_number % 2 == 0 {
-                actual_number / 2 
+                actual_number / 2
             } else {
                 actual_number * 3 + 1
             };
-            
-            
+
             self.current = next_number;
         }
-        
 
         Some(actual_number)
     }
@@ -75,11 +76,11 @@ mod tests {
 
     #[test]
     fn test_empty_sequence_from_0() {
-         // Par convention, une séquence démarrant à 0 ou moins n'est pas définie.
-         // Notre `new` devrait peut-être gérer ça, mais pour cet exercice,
-         // on peut s'attendre à ce que l'itérateur se termine immédiatement.
-         // On va considérer que `new(0)` ne devrait pas paniquer.
-         let sequence: Vec<u64> = Collatz::new(0).collect();
-         assert_eq!(sequence, vec![]);
+        // Par convention, une séquence démarrant à 0 ou moins n'est pas définie.
+        // Notre `new` devrait peut-être gérer ça, mais pour cet exercice,
+        // on peut s'attendre à ce que l'itérateur se termine immédiatement.
+        // On va considérer que `new(0)` ne devrait pas paniquer.
+        let sequence: Vec<u64> = Collatz::new(0).collect();
+        assert_eq!(sequence, vec![]);
     }
 }

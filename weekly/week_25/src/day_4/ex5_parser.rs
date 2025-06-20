@@ -9,7 +9,9 @@ pub struct ParseError {
 /// Agrège les données depuis un itérateur de chaînes formatées "clé:valeur".
 /// S'arrête à la première ligne malformée et retourne une erreur contenant
 /// le travail partiel.
-pub fn aggregate_data<'a>(mut iter: impl Iterator<Item = &'a str>) -> Result<HashMap<String, i32>, ParseError> {
+pub fn aggregate_data<'a>(
+    mut iter: impl Iterator<Item = &'a str>,
+) -> Result<HashMap<String, i32>, ParseError> {
     let initial_state = HashMap::new();
 
     // TODO: Utilise try_fold ici.
@@ -19,29 +21,35 @@ pub fn aggregate_data<'a>(mut iter: impl Iterator<Item = &'a str>) -> Result<Has
     // En cas d'échec, le HashMap *avant* la modification est dans le Err.
     iter.try_fold(initial_state, |mut acc, line| {
         if !line.contains(':') {
-            return Err(ParseError { faulty_line: line.to_string(), partial_result: acc.clone() })
+            return Err(ParseError {
+                faulty_line: line.to_string(),
+                partial_result: acc.clone(),
+            });
         }
         if let Some((key, value)) = line.split_once(':') {
-            
-            let value = value.parse::<i32>().map_err(|_| ParseError { faulty_line: line.to_string(), partial_result: acc.clone() })?;
+            let value = value.parse::<i32>().map_err(|_| ParseError {
+                faulty_line: line.to_string(),
+                partial_result: acc.clone(),
+            })?;
 
             match key.trim().to_lowercase().as_str() {
                 "power" | "level" => {
-                    
                     *acc.entry(key.to_string()).or_insert(0) += value;
                     Ok(acc)
-                },
-                _ => { return Err(ParseError { faulty_line: line.to_string(), partial_result: acc.clone()});},
+                }
+                _ => {
+                    return Err(ParseError {
+                        faulty_line: line.to_string(),
+                        partial_result: acc.clone(),
+                    });
+                }
             }
         } else {
-            Err(ParseError { faulty_line:line.to_string(),  partial_result: acc.clone() })
+            Err(ParseError {
+                faulty_line: line.to_string(),
+                partial_result: acc.clone(),
+            })
         }
-        
-
-        
-
-
-
     })
 }
 
@@ -64,7 +72,7 @@ mod tests {
         // La map partielle ne doit contenir que "level:10".
         let data = vec!["level:10", "power_5", "level:5"];
         let err = aggregate_data(data.into_iter()).unwrap_err();
-        
+
         assert_eq!(err.faulty_line, "power_5");
         assert_eq!(err.partial_result.len(), 1);
         assert_eq!(*err.partial_result.get("level").unwrap(), 10);

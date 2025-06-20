@@ -1,31 +1,45 @@
 use std::fmt::Debug;
 
 //==//==//==//==//==//==//==//==//==//==//==//==//==//==//==//==DATA_STRUCTURE
-#[derive(Debug)]
-pub struct Node<T> {
-    value: (T, usize),
+#[derive(Debug, Clone)]
+pub struct Node<T: Clone> 
+    where 
+        Node<T> : Sized,
+    {
+    value: T, 
     right: Option<Box<Node<T>>>,
     left: Option<Box<Node<T>>>,
 }
 
-pub struct BinaryTree<T> {
+#[derive(Debug, Clone)]
+pub struct BinaryTree<T: Clone> 
+    where 
+        Node<T> :Sized,
+{
     root: Option<Box<Node<T>>>,
 }
 
-pub struct IntoIter<T> {
-    stack: Vec<Box<Node<T>>>,
+#[derive(Debug, Clone)]
+pub struct IntoIter<T: Clone> 
+    where 
+        Node<T> : Clone + Sized,
+{
+    stack: Vec<(Box<Node<T>>, usize)>,
 }
 
 //==//==//==//==//==//==//==//==//==//==//==//==//==//==//==//==ADD_LOGIC
 
-impl<T: Ord + Copy + Debug> BinaryTree<T> {
+impl<T: Ord + Copy + Debug + Clone> BinaryTree<T> 
+    where 
+        Node<T> : Clone + Sized,
+{
     fn new() -> Self {
         Self { root: None }
     }
 
-    fn add(&mut self, data: T) {
+    fn add(&mut self, value: T) {
         let new_node = Box::new(Node {
-            value: (data, 1),
+            value,
             right: None,
             left: None,
         });
@@ -38,18 +52,20 @@ impl<T: Ord + Copy + Debug> BinaryTree<T> {
     }
 }
 
-impl<T: Ord + Copy + Debug> Node<T> {
+impl<T: Ord + Copy + Debug + Clone> Node<T> 
+    where 
+        Node<T> : Clone + Sized,
+{
     fn add_node(&mut self, mut new_node: Box<Node<T>>) {
-        println!("value {:?}, depth {}", new_node.value.0, new_node.value.1);
         if new_node.value < self.value {
-            new_node.value.1 += 1;
+            
             if let Some(left_node) = &mut self.left {
                 left_node.add_node(new_node);
             } else {
                 self.left = Some(new_node)
             }
         } else {
-            new_node.value.1 += 1;
+            
             if let Some(right_node) = &mut self.right {
                 right_node.add_node(new_node);
             } else {
@@ -60,53 +76,68 @@ impl<T: Ord + Copy + Debug> Node<T> {
 }
 
 //==//==//==//==//==//==//==//==//==//==//==//==//==//==//==//==ITER_LOGIC
-impl<T: Debug> Iterator for IntoIter<T> {
+impl<T: Debug + Clone> Iterator for IntoIter<T> 
+
+    where 
+        Node<T> : Clone + Sized,
+        {
     type Item = (T, usize);
 
     fn next(&mut self) -> Option<Self::Item> {
-        match self.stack.pop() {
-            None => None,
-            Some(node_to_return) => {
-                if let Some(right_node) = node_to_return.right {
-                    self.push_left_branch(Some(right_node));
-                }
-
-                Some(node_to_return.value)
+        if let Some((node, depth)) = self.stack.pop() {
+            if let Some(right) = node.right {
+                self.push_left_branch(Some(right), depth + 1);
             }
-        }
+
+            Some((node.value, depth))
+        } else { None}
+
     }
 }
 
-impl<T: Debug> IntoIterator for BinaryTree<T> {
+impl<T: Debug + Clone> IntoIterator for BinaryTree<T> 
+    where 
+        Node<T> : Clone,
+{
     type Item = (T, usize);
     type IntoIter = IntoIter<T>;
 
     fn into_iter(self) -> Self::IntoIter {
         let mut iter = IntoIter { stack: Vec::new() };
-        iter.push_left_branch(self.root);
+        iter.push_left_branch(self.root, 0);
         iter
     }
 }
 
 //==//==//==//==//==//==//==//==//==//==//==//==//==//==//==//==PUSH_LEFT_BRANCH
-impl<T: Debug> IntoIter<T> {
-    fn push_left_branch(&mut self, mut node: Option<Box<Node<T>>>) {
+impl<T: Debug + Clone> IntoIter<T>
+where 
+    Node<T> : Clone + Sized,
+{
+
+    fn push_left_branch(&mut self, mut node: Option<Box<Node<T>>>, mut depth: usize) {
         while let Some(mut current_node) = node {
+            self.stack.push((current_node.clone(), depth));
             node = current_node.left.take();
-            self.stack.push(current_node);
-        }
+            depth += 1;
+
+        }    
+
     }
 }
 
 //==//==//==//==//==//==//==//==//==//==//==//==//==//==//==//==COMPLEXE_AGREG
 
-#[derive(Debug, Default, PartialEq)]
+#[derive(Debug, Default, PartialEq, Clone)]
 struct Analysis<T> {
     max_value: T,
     depth: usize,
 }
 
-pub fn analyze_tree<T: Ord + Copy + std::fmt::Debug>(tree: BinaryTree<T>) -> Option<(T, usize)> {
+pub fn analyze_tree<T: Ord + Copy + std::fmt::Debug>(tree: BinaryTree<T>) -> Option<(T, usize)> 
+    where 
+        Node<T> : Clone + Sized,
+{
     // Indice : Le type de l'accumulateur de fold pourrait être Option<Analysis<T>>
     // L'état initial serait None. La première valeur itérée crée le premier `Analysis`.
     // Les valeurs suivantes mettent à jour cet `Analysis`.
@@ -136,7 +167,10 @@ mod tests {
     // ...
 
     #[test]
-    fn test_analyze_empty_tree() {
+    fn test_analyze_empty_tree() 
+    {
+
+
         let tree: BinaryTree<i32> = BinaryTree::new();
         assert_eq!(analyze_tree(tree), None);
     }
@@ -145,7 +179,7 @@ mod tests {
     fn test_analyze_single_node() {
         let mut tree = BinaryTree::new();
         tree.add(100);
-        assert_eq!(analyze_tree(tree), Some((100, 1)));
+        assert_eq!(analyze_tree(tree), Some((100, 0)));
     }
 
     #[test]
@@ -155,24 +189,18 @@ mod tests {
         tree.add(20);
         tree.add(30); // Profondeur 3
         tree.add(40); // Profondeur 4 
-        assert_eq!(analyze_tree(tree), Some((40, 4)));
+        assert_eq!(analyze_tree(tree), Some((40, 3)));
     }
 
     #[test]
     fn test_analyze_balanced_tree() {
         let mut tree = BinaryTree::new();
-        tree.add(100);
-        tree.add(50);
-        tree.add(150);
-        tree.add(40);
-        tree.add(60);
-        tree.add(140);
-        tree.add(160);
-        tree.add(41);
-        tree.add(42);
-        tree.add(43);
+        tree.add(10);
+        tree.add(5);
+        tree.add(15);
+        tree.add(12);   
         // Profondeur max est au niveau de 3, 7, 12 ou 20 (profondeur 3)
         // Max value est 20
-        assert_eq!(analyze_tree(tree), Some((160, 6)));
+        assert_eq!(analyze_tree(tree), Some((15, 2)));
     }
 }

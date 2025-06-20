@@ -1,30 +1,34 @@
 //==//==//==//==//==//==//==//==//==//==//==//==//==//==//==//==DATA_STRUCTURE
 pub struct BinaryTree<T> {
-    root: Option<Box<Node<T>>>
+    root: Option<Box<Node<T>>>,
 }
 
 pub struct Node<T> {
     value: T,
     right: Option<Box<Node<T>>>,
-    left: Option<Box<Node<T>>>
+    left: Option<Box<Node<T>>>,
 }
 
 pub struct IntoIter<T> {
-    stack: Vec<Box<Node<T>>>
+    stack: Vec<Box<Node<T>>>,
 }
 //==//==//==//==//==//==//==//==//==//==//==//==//==//==//==//==ADD_LOGIC
 impl<T: Ord> BinaryTree<T> {
-    fn new()-> Self {
+    fn new() -> Self {
         Self { root: None }
     }
 
     fn add(&mut self, value: T) {
-        let new_value = Box::new(Node {value, right: None, left: None});
-        
+        let new_value = Box::new(Node {
+            value,
+            right: None,
+            left: None,
+        });
+
         if let Some(root) = &mut self.root {
             root.add_node(new_value);
         } else {
-            self.root = Some(new_value); 
+            self.root = Some(new_value);
         }
     }
 }
@@ -47,17 +51,15 @@ impl<T: Ord> Node<T> {
             }
         }
     }
-
 }
 
 //==//==//==//==//==//==//==//==//==//==//==//==//==//==//==//==ITER_LOGIC
 impl<T> Iterator for IntoIter<T> {
     type Item = T;
- 
-    fn next(&mut self) -> Option<Self::Item> {
 
+    fn next(&mut self) -> Option<Self::Item> {
         match self.stack.pop() {
-            None => None, 
+            None => None,
             Some(node_to_return) => {
                 if let Some(right_value) = node_to_return.right {
                     self.push_left_branch(Some(right_value));
@@ -65,7 +67,6 @@ impl<T> Iterator for IntoIter<T> {
                 Some(node_to_return.value)
             }
         }
-        
     }
 }
 
@@ -74,23 +75,21 @@ impl<T> IntoIterator for BinaryTree<T> {
     type IntoIter = IntoIter<T>;
 
     fn into_iter(self) -> Self::IntoIter {
-        let mut iter = IntoIter { stack: Vec::new()};
-        iter.push_left_branch(self.root);        
+        let mut iter = IntoIter { stack: Vec::new() };
+        iter.push_left_branch(self.root);
         iter
     }
 }
 
-
 //==//==//==//==//==//==//==//==//==//==//==//==//==//==//==//==PUSH_LEFT_HELPER
 impl<T> IntoIter<T> {
     fn push_left_branch(&mut self, mut node: Option<Box<Node<T>>>) {
-        while let Some(mut current_node) = node  {
+        while let Some(mut current_node) = node {
             node = current_node.left.take();
             self.stack.push(current_node);
         }
     }
 }
-
 
 #[cfg(test)]
 mod tests {

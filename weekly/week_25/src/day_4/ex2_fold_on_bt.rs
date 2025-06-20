@@ -1,17 +1,16 @@
-
 //==//==//==//==//==//==//==//==//==//==//==//==//==//==//==//==DATA_STRUCTURE
 pub struct Node<T> {
     value: T,
     right: Option<Box<Node<T>>>,
-    left: Option<Box<Node<T>>>
+    left: Option<Box<Node<T>>>,
 }
 
 pub struct BinaryTree<T> {
-    root: Option<Box<Node<T>>>
+    root: Option<Box<Node<T>>>,
 }
 
 pub struct IntoIter<T> {
-    stack: Vec<Box<Node<T>>>
+    stack: Vec<Box<Node<T>>>,
 }
 
 //==//==//==//==//==//==//==//==//==//==//==//==//==//==//==//==ADD_LOGIC
@@ -22,16 +21,18 @@ impl<T: Ord> BinaryTree<T> {
     }
 
     fn add(&mut self, value: T) {
-        let new_node = Box::new(Node { value, right: None, left: None});
+        let new_node = Box::new(Node {
+            value,
+            right: None,
+            left: None,
+        });
 
         if let Some(root) = &mut self.root {
             root.add_node(new_node);
         } else {
             self.root = Some(new_node);
         }
-
     }
-
 }
 
 impl<T: Ord> Node<T> {
@@ -51,9 +52,6 @@ impl<T: Ord> Node<T> {
         }
     }
 }
-
-
-
 
 //==//==//==//==//==//==//==//==//==//==//==//==//==//==//==//==ITER_LOGIC
 impl<T> Iterator for IntoIter<T> {
@@ -76,9 +74,9 @@ impl<T> IntoIterator for BinaryTree<T> {
     type IntoIter = IntoIter<T>;
 
     fn into_iter(self) -> Self::IntoIter {
-        let mut iter = IntoIter {stack: Vec::new()};
+        let mut iter = IntoIter { stack: Vec::new() };
         iter.push_left_branch(self.root);
-        iter        
+        iter
     }
 }
 
@@ -99,9 +97,6 @@ pub fn sum_with_fold(tree: BinaryTree<i32>) -> i32 {
     // TODO: Implémente la logique ici en utilisant tree.into_iter().fold(...)
 
     tree.into_iter().fold(0, |acc, node| acc + node)
-
-
-
 }
 
 //==//==//==//==//==//==//==//==//==//==//==//==//==//==//==//==TESTS

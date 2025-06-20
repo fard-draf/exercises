@@ -2,17 +2,17 @@ use std::path::Iter;
 
 //==//==//==//==//==//==//==//==//==//==//==//==//==//==//==//==DATA_STRUCTURE
 pub struct BinaryTree<T> {
-    root: Option<Box<Node<T>>>
+    root: Option<Box<Node<T>>>,
 }
 
 pub struct Node<T> {
     value: T,
     right: Option<Box<Node<T>>>,
-    left: Option<Box<Node<T>>>
+    left: Option<Box<Node<T>>>,
 }
 
 pub struct IntoIter<T> {
-    stack: Vec<Box<Node<T>>>
+    stack: Vec<Box<Node<T>>>,
 }
 
 //==//==//==//==//==//==//==//==//==//==//==//==//==//==//==//==ADD_LOGIC
@@ -23,7 +23,11 @@ impl<T: Ord> BinaryTree<T> {
     }
 
     fn add(&mut self, value: T) {
-        let new_node = Box::new(Node {value, right: None, left: None});
+        let new_node = Box::new(Node {
+            value,
+            right: None,
+            left: None,
+        });
 
         if let Some(root) = &mut self.root {
             root.add_node(new_node);
@@ -41,8 +45,7 @@ impl<T: Ord> Node<T> {
                 left_child.add_node(new_node);
             } else {
                 self.left = Some(new_node)
-            } 
-
+            }
         } else {
             //right
             if let Some(right_child) = &mut self.right {
@@ -58,19 +61,18 @@ impl<T: Ord> Node<T> {
 
 impl<T> IntoIter<T> {
     pub fn push_left_branch(&mut self, mut node: Option<Box<Node<T>>>) {
-        while let Some(mut current_node) = node  {
-                node = current_node.left.take();
-                self.stack.push(current_node);            
-        }        
+        while let Some(mut current_node) = node {
+            node = current_node.left.take();
+            self.stack.push(current_node);
+        }
     }
 }
 //==//==//==//==//==//==//==//==//==//==//==//==//==//==//==//==ITER_LOGIC
 
 impl<T> Iterator for IntoIter<T> {
     type Item = T;
-    
+
     fn next(&mut self) -> Option<Self::Item> {
-        
         match self.stack.pop() {
             None => None,
             Some(value_to_return) => {
@@ -80,7 +82,6 @@ impl<T> Iterator for IntoIter<T> {
                 Some(value_to_return.value)
             }
         }
-
     }
 }
 
@@ -93,10 +94,7 @@ impl<T> IntoIterator for BinaryTree<T> {
         iter.push_left_branch(self.root);
         iter
     }
-    
 }
-
-
 
 #[cfg(test)]
 mod tests {

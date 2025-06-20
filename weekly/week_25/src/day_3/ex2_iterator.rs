@@ -1,7 +1,6 @@
-
 #[derive(Debug)]
 pub struct MyBox<T> {
-    pub items: Vec<T>
+    pub items: Vec<T>,
 }
 
 impl<T> MyBox<T> {
@@ -27,10 +26,7 @@ impl<T> IntoIterator for MyBox<T> {
             inner: self.items.into_iter(),
         }
     }
-
-    
 }
-
 
 impl<T> Iterator for IntoIter<T> {
     type Item = T;
@@ -38,7 +34,6 @@ impl<T> Iterator for IntoIter<T> {
     fn next(&mut self) -> Option<Self::Item> {
         self.inner.next()
     }
-    
 }
 
 pub fn iteration_sur_collec() {
@@ -47,9 +42,10 @@ pub fn iteration_sur_collec() {
     box1.push("Alice au pays des merveilles".to_string());
     box1.push("Le bossu de Notre Dame".to_string());
 
-    let collection = box1.into_iter().filter(|e| e.contains("bossu")).collect::<Vec<String>>();
+    let collection = box1
+        .into_iter()
+        .filter(|e| e.contains("bossu"))
+        .collect::<Vec<String>>();
 
     println!("{:?}", collection);
-    
-
 }
