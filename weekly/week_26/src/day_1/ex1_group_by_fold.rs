@@ -1,5 +1,5 @@
 pub fn group_by_fold() {
-    let items: [u8; 6] = [1,1,2,3,3,3];
+    let items: [u8; 6] = [1, 1, 2, 3, 3, 3];
 
     let init_acc = (Vec::<Vec<u8>>::new(), None);
 
@@ -10,7 +10,7 @@ pub fn group_by_fold() {
             None => acc.1 = Some((item, 1)),
             // rempli, on decompose en (value, count)
             Some((value, mut count)) => {
-                //si value == item, on rajoute 1 au count 
+                //si value == item, on rajoute 1 au count
                 if value == item {
                     acc.1 = Some((item, count + 1));
                 //sinon on cree le vecteur du groupe, on rempli le vec final et on reinitialise le vec d accumulation avec la nouvelle valeur et un conteur a 1

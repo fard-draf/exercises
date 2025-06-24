@@ -1,32 +1,34 @@
-pub fn group_by_key<K, V, F>(iter: impl Iterator<Item = V>, key_fn: F) -> Vec<(K, Vec<V>)>
+pub fn group_by_key<K, V, F>(mut iter: impl Iterator<Item = V>, key_fn: F) -> Vec<(K, Vec<V>)>
 where
     K: PartialEq + Clone,
     F: Fn(&V) -> K,
 {
-    let init_acc = (Vec::<(K, Vec<V>)>::new(), None::<(K, Vec<V>)>);
-    let (mut final_group, last_group) = iter.fold(init_acc, |mut acc, item| {
+    let init = (Vec::<(K, Vec<V>)>::new(), None);
+    let (mut grouped, last) = iter.fold(init, |mut acc, item| {
         let key = key_fn(&item);
-
-        if let Some((running_key, mut vec_val)) = acc.1.take() {
-            if running_key == key {
-                vec_val.push(item);
-                acc.1 = Some((key, vec_val));
-            } else {
-                acc.0.push((running_key, vec_val));
-                acc.1 = Some((key, vec![item]));
+        match acc.1.take() {
+            None => {
+                let vec = vec![item];
+                acc.1 = Some((key, vec));
             }
-        } else {
-            acc.1 = Some((key, vec![item]));
-        }
 
+            Some((key_val, mut vec_val)) => {
+                if key_val == key {
+                    vec_val.push(item);
+                } else {
+                    acc.0.push((key_val, vec_val));
+                    acc.1 = Some((key, vec![item]))
+                }
+            }
+        }
         acc
     });
 
-    if let Some(value) = last_group {
-        final_group.push(value);
+    if let Some(value) = last {
+        grouped.push(value);
     }
 
-    final_group
+    grouped
 }
 
 #[cfg(test)]
