@@ -16,3 +16,7 @@ path = "src/main.rs"
 [[bin]]
 name = "log_parser"
 path = "src/day_2/log_parser/main.rs"
+
+[[bin]]
+name = "ex1_benchmark"
+path = "src/day_3/ex1_benchmark/main.rs"
