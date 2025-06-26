@@ -23,27 +23,24 @@ impl ResourceProcessor {
     }
 
     pub fn process_batch(&mut self, tasks: Vec<Task>) -> Result<u32, &'static str> {
-
         let total_tasks = tasks.len() as u32;
         let mut resource = self.resource.take().ok_or("Processor has no resource")?;
 
         let mut tasks_completed = 0;
 
         for task in tasks {
-        let cost = match task {
-            Task::Simple => 10,
-            Task::Complex(value) => value,
-        };
+            let cost = match task {
+                Task::Simple => 10,
+                Task::Complex(value) => value,
+            };
 
-        if resource.durability >= cost {
-
-            resource.durability -= cost;
-            tasks_completed += 1;
-        } else {
-
-            break; 
+            if resource.durability >= cost {
+                resource.durability -= cost;
+                tasks_completed += 1;
+            } else {
+                break;
+            }
         }
-    }
 
         if resource.durability > 0 && tasks_completed == total_tasks {
             self.resource = Some(resource)

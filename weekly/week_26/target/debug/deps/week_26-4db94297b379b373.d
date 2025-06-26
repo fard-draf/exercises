@@ -1,9 +1,16 @@
-/mnt/repo/dev/warehouse/playground/exercises/weekly/week_26/target/debug/deps/libweek_26-4db94297b379b373.rmeta: src/lib.rs src/day_1/mod.rs src/day_1/ex1_group_by_fold.rs
+/mnt/repo/dev/warehouse/playground/exercises/weekly/week_26/target/debug/deps/libweek_26-4db94297b379b373.rmeta: src/lib.rs src/day_1/mod.rs src/day_1/ex1_group_by_fold.rs src/day_1/ex2_group_by_fold_generic.rs src/day_1/ex3_scan_account.rs src/day_1/ex4_group_by_fold_generic2.rs src/day_1/ex5_lifecycle.rs src/day_2/mod.rs src/day_2/ex1_scan.rs src/day_2/ex2_windows.rs
 
-/mnt/repo/dev/warehouse/playground/exercises/weekly/week_26/target/debug/deps/libweek_26-4db94297b379b373.rlib: src/lib.rs src/day_1/mod.rs src/day_1/ex1_group_by_fold.rs
+/mnt/repo/dev/warehouse/playground/exercises/weekly/week_26/target/debug/deps/libweek_26-4db94297b379b373.rlib: src/lib.rs src/day_1/mod.rs src/day_1/ex1_group_by_fold.rs src/day_1/ex2_group_by_fold_generic.rs src/day_1/ex3_scan_account.rs src/day_1/ex4_group_by_fold_generic2.rs src/day_1/ex5_lifecycle.rs src/day_2/mod.rs src/day_2/ex1_scan.rs src/day_2/ex2_windows.rs
 
-/mnt/repo/dev/warehouse/playground/exercises/weekly/week_26/target/debug/deps/week_26-4db94297b379b373.d: src/lib.rs src/day_1/mod.rs src/day_1/ex1_group_by_fold.rs
+/mnt/repo/dev/warehouse/playground/exercises/weekly/week_26/target/debug/deps/week_26-4db94297b379b373.d: src/lib.rs src/day_1/mod.rs src/day_1/ex1_group_by_fold.rs src/day_1/ex2_group_by_fold_generic.rs src/day_1/ex3_scan_account.rs src/day_1/ex4_group_by_fold_generic2.rs src/day_1/ex5_lifecycle.rs src/day_2/mod.rs src/day_2/ex1_scan.rs src/day_2/ex2_windows.rs
 
 src/lib.rs:
 src/day_1/mod.rs:
 src/day_1/ex1_group_by_fold.rs:
+src/day_1/ex2_group_by_fold_generic.rs:
+src/day_1/ex3_scan_account.rs:
+src/day_1/ex4_group_by_fold_generic2.rs:
+src/day_1/ex5_lifecycle.rs:
+src/day_2/mod.rs:
+src/day_2/ex1_scan.rs:
+src/day_2/ex2_windows.rs:
