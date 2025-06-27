@@ -9,10 +9,7 @@ use chrono::TimeDelta;
 
 use crate::domain::{LogLevel, Operation};
 use crate::parser::parse_log;
-use crate::{
-    domain::{AnalysisReport},
-    error::AppError,
-};
+use crate::{domain::AnalysisReport, error::AppError};
 
 mod analyzer;
 mod domain;
@@ -45,10 +42,8 @@ fn main() -> Result<(), AppError> {
     //                 match parse_log(&line_str) {
     //                     Ok(log_entry) => {
 
-                            
     //                         let log_duration = report.last_log.get_key_value(&log_entry.user_id).and_then(|(user, (op, timestamp))| {
-                                
-                                
+
     //                             report.last_log.get(&log_entry.user_id)
     //                             .and_then(|(next_op, next_time_stamp)| {
     //                                 if *op == Operation::Login && *next_op == Operation::Logout {
@@ -58,18 +53,17 @@ fn main() -> Result<(), AppError> {
     //                                 }
     //                             })
     //                         }).unwrap_or_else(|| (log_entry.user_id, TimeDelta::zero()));
-                            
+
     //                         report.last_log
     //                             .entry(log_entry.user_id)
     //                             .and_modify(|e| *e = (log_entry.operation, log_entry.time_stamp))
     //                             .or_insert((log_entry.operation, log_entry.time_stamp));
-                            
+
     //                         report.log_duration.entry(log_duration.0).and_modify(|e| *e = log_duration.1).or_insert(TimeDelta::zero());
-                            
+
     //                         *report.level_distribution.entry(log_entry.level).or_insert(0) += 1;
     //                         report.log_count += 1;
     //                         *report.user_activity.entry(log_entry.user_id).or_insert(0) += 1;
-
 
     //                     },
 
@@ -77,18 +71,15 @@ fn main() -> Result<(), AppError> {
     //                         report.corrupted_lines +=1;
     //                     },
     //                 }
-                    
+
     //             },
 
     //             Err(_) => {report.corrupted_lines += 1;},
-                
+
     //         }
 
-
-
-
     //         report
-            
+
     //     });
 
     Ok(())

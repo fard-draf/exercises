@@ -1,9 +1,7 @@
 use crate::error::*;
 
-use std::{collections::HashMap, ops::Sub, str::FromStr};
 use chrono::{DateTime, TimeDelta, Utc};
-
-
+use std::{collections::HashMap, ops::Sub, str::FromStr};
 
 #[derive(Debug, Default, PartialEq, Eq, PartialOrd, Ord)]
 pub struct ParsedLog {
@@ -46,16 +44,14 @@ impl Default for LogLevel {
 
 #[derive(Debug, Default, Clone, PartialEq, Eq)]
 pub struct AnalysisReport {
-    pub proceed_lines: u32, // total lines
-    pub parsed_lines: u32,  // lines parsed
+    pub proceed_lines: u32,       // total lines
+    pub parsed_lines: u32,        // lines parsed
     pub parse_error_counter: u32, // lines with parsing err
     pub log_level_counter: HashMap<LogLevel, u32>,
-    pub burst_error: Vec<(TimeStamp, u32)>, 
-    pub log_error_timestamp: Vec<TimeStamp>,
+    pub burst_error: Vec<(TimeStamp, usize)>,
+    pub error_log: Vec<TimeStamp>,
     pub log_error_timeline: Vec<(TimeStamp, u32)>,
-
 }
-
 
 //==//==//==//==//==//==//==//==//==//==//==//==//==//==//==//==TEST
 #[cfg(test)]

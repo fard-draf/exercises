@@ -30,7 +30,6 @@ impl ParsedLogEntry {
     }
 }
 
-
 //==//==//==//==//==//==//==//==//==//==//==//==//==//==//==//==USER
 #[derive(Debug, Default, Clone, PartialEq, Eq, PartialOrd, Hash)]
 pub struct User {
@@ -40,7 +39,7 @@ pub struct User {
 impl User {
     pub fn new(input: &str) -> Self {
         let id = input;
-        Self { id: id.to_string()}
+        Self { id: id.to_string() }
     }
 }
 //==//==//==//==//==//==//==//==//==//==//==//==//==//==//==//==TIMESTAMP
@@ -57,9 +56,8 @@ impl TimeStamp {
     }
 }
 
-
 //==//==//==//==//==//==//==//==//==//==//==//==//==//==//==//==LOGLEVEL
-#[derive(Debug,  Clone, PartialEq, Eq, PartialOrd, Hash)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Hash)]
 pub enum LogLevel {
     Default,
     Info,
@@ -78,7 +76,6 @@ pub enum Operation {
     ReadDocument,
 }
 
-
 //==//==//==//==//==//==//==//==//==//==//==//==//==//==//==//==STATS
 
 #[derive(Debug, Default)]
@@ -87,13 +84,9 @@ pub struct AnalysisReport {
     pub parsed_lines: u32,
     pub corrupted_lines: u32,
     pub log_count: u32,
-    pub last_log: HashMap<User,(Operation,TimeStamp)>,
+    pub last_log: HashMap<User, (Operation, TimeStamp)>,
     pub level_distribution: HashMap<LogLevel, u32>,
-    pub user_activity: HashMap<User, u32>, //min max 
+    pub user_activity: HashMap<User, u32>, //min max
     pub log_duration: HashMap<User, TimeDelta>,
     pub operation_nbr: u32,
 }
-
-
-
-

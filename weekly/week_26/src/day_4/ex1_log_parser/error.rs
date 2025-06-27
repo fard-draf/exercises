@@ -4,7 +4,7 @@ use thiserror::Error;
 pub enum AppError {
     #[error(transparent)]
     TimeStamp(#[from] chrono::ParseError),
-    
+
     #[error("Generique")]
     Generique,
 
