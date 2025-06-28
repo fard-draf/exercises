@@ -23,51 +23,81 @@ pub fn analyze_market_data(trades: impl Iterator<Item = Trade>) -> MarketDaySumm
     if trades.is_empty() {
         return MarketDaySummary::default();
     }
-
-    let scan = trades.iter().scan((0.0, 0), |(price, volume), trade| {
     
-        *price = trade.price;
-        *volume = trade.volume;
+    let (mut result,_, sum_vol) = trades.iter()
+    .fold((MarketDaySummary::default(), 0.0, 0), 
+        |(mut summary, mut prev_price, mut prev_vol), trade| {
+        let sum_vol = trade.volume + prev_vol;
+        summary.cumulative_volumes.push(sum_vol);
+        
+        let current_drop = prev_price - trade.price;
+        if current_drop > summary.biggest_price_drop {
+            summary.biggest_price_drop = current_drop
+        }
+        
+        summary.vwap += trade.price * trade.volume as f64;
+                
+        prev_vol = sum_vol;
+        prev_price = trade.price;
+        
 
-        Some((price.clone(), volume.clone()))
-    });
 
-    let (res, vol, vwap_up) = scan.fold(
-        (Vec::new(), Vec::new(), 0.0),
-        |(mut acc_res, mut acc_vol, mut vwap_up), (price, vol)| {
-            acc_res.push(price);
-            acc_vol.push(vol);
-            vwap_up += price  * (vol as f64);
-
-            (acc_res, acc_vol, vwap_up)
-        },
+        (summary,prev_price, prev_vol)
+        }
     );
 
-    summary.vwap = vwap_up / (vol.iter().sum::<u64>() as f64);
+    result.vwap = result.vwap / sum_vol as f64;
 
-    let safe_window = &res[..res.len() - 1];
-    summary.biggest_price_drop = safe_window
-        .windows(2)
-        .fold(0.0, |mut acc, price| {
-            let window1 = price[0];
-            let window2 = price[1];
-            let delta = window2 - window1;
-            if delta < acc {
-                acc = delta;
-            }
-            acc
-        })
-        .abs();
+    println!("{:#?}", result);
+    result
+    
+    
 
-    summary.cumulative_volumes = vol
-        .iter()
-        .scan(0, |state, vol| {
-            *state += vol;
-            Some(*state)
-        })
-        .collect::<Vec<u64>>();
 
-    summary
+    // let scan = trades.iter().scan((0.0, 0), |(price, volume), trade| {
+    
+    //     *price = trade.price;
+    //     *volume = trade.volume;
+
+    //     Some((price.clone(), volume.clone()))
+    // });
+
+    // let (res, vol, vwap_up) = scan.fold(
+    //     (Vec::new(), Vec::new(), 0.0),
+    //     |(mut acc_res, mut acc_vol, mut vwap_up), (price, vol)| {
+    //         acc_res.push(price);
+    //         acc_vol.push(vol);
+    //         vwap_up += price  * (vol as f64);
+
+    //         (acc_res, acc_vol, vwap_up)
+    //     },
+    // );
+
+    // summary.vwap = vwap_up / (vol.iter().sum::<u64>() as f64);
+
+    // let safe_window = &res[..res.len() - 1];
+    // summary.biggest_price_drop = safe_window
+    //     .windows(2)
+    //     .fold(0.0, |mut acc, price| {
+    //         let window1 = price[0];
+    //         let window2 = price[1];
+    //         let delta = window2 - window1;
+    //         if delta < acc {
+    //             acc = delta;
+    //         }
+    //         acc
+    //     })
+    //     .abs();
+
+    // summary.cumulative_volumes = vol
+    //     .iter()
+    //     .scan(0, |state, vol| {
+    //         *state += vol;
+    //         Some(*state)
+    //     })
+    //     .collect::<Vec<u64>>();
+
+    // summary
 }
 
 #[cfg(test)]
