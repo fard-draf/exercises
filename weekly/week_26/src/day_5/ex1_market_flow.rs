@@ -23,39 +23,34 @@ pub fn analyze_market_data(trades: impl Iterator<Item = Trade>) -> MarketDaySumm
     if trades.is_empty() {
         return MarketDaySummary::default();
     }
-    
-    let (mut result,_, sum_vol) = trades.iter()
-    .fold((MarketDaySummary::default(), 0.0, 0), 
+
+    let (mut result, _, sum_vol) = trades.iter().fold(
+        (MarketDaySummary::default(), 0.0, 0),
         |(mut summary, mut prev_price, mut prev_vol), trade| {
-        let sum_vol = trade.volume + prev_vol;
-        summary.cumulative_volumes.push(sum_vol);
-        
-        let current_drop = prev_price - trade.price;
-        if current_drop > summary.biggest_price_drop {
-            summary.biggest_price_drop = current_drop
-        }
-        
-        summary.vwap += trade.price * trade.volume as f64;
-                
-        prev_vol = sum_vol;
-        prev_price = trade.price;
-        
+            let sum_vol = trade.volume + prev_vol;
+            summary.cumulative_volumes.push(sum_vol);
 
+            let current_drop = prev_price - trade.price;
+            if current_drop > summary.biggest_price_drop {
+                summary.biggest_price_drop = current_drop
+            }
 
-        (summary,prev_price, prev_vol)
-        }
+            summary.vwap += trade.price * trade.volume as f64;
+
+            prev_vol = sum_vol;
+            prev_price = trade.price;
+
+            (summary, prev_price, prev_vol)
+        },
     );
 
     result.vwap = result.vwap / sum_vol as f64;
 
     println!("{:#?}", result);
     result
-    
-    
-
 
     // let scan = trades.iter().scan((0.0, 0), |(price, volume), trade| {
-    
+
     //     *price = trade.price;
     //     *volume = trade.volume;
 
