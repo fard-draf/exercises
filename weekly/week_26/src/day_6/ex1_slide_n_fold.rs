@@ -3,60 +3,23 @@ pub fn analyze_sliding_windows(data: &[u32], window_size: usize) -> Vec<(usize, 
         return Vec::new();
     }
 
-    let init = (Vec::<(usize, u32,f64)>::new(), (0usize, 0u32, 0f64), (false, 0)); //first, somme, moyenn
-    let index_view = window_size - 1;
+    let initial = (0u32, 0f64);
 
-    let (vec, _, _) = 
-        data.iter()
-            .enumerate()
-            .fold(init, 
-                |(mut acc, mut temp_acc,( mut is_first_view_indx, mut start)), (mut index, item)| {
-
-        println!("");
-        println!("Entry n{} index view {}", index+1, index_view);
-        
-        let window_scale = (window_size - 1) + temp_acc.0;
+    data.windows(window_size).enumerate().scan(initial, |state, (index, window)| {
 
         if index == 0 {
-            temp_acc.0 = index;
-
-        } else if is_first_view_indx {
-            index = start;
-            temp_acc.0 = index;
-            is_first_view_indx = false;
-            println!("INDEX {} / TEMPACC.0 {}", index, temp_acc.0);
-            println!("Windows scale = {}", window_scale);
-            println!("");
-        } 
-        
-        if index <= window_scale {
-            temp_acc.1 += item;
-            temp_acc.2 += 1.0;
-            println!("acc.1 = {}, acc.2 = {}", temp_acc.1, temp_acc.2);
-            println!("");
-        } 
-        
-        if  index == window_scale {
-            temp_acc.2 = temp_acc.1 as f64 / temp_acc.2;
-            acc.push(temp_acc);
-            
-            temp_acc.0 += 1;
-            start = temp_acc.0;
-            is_first_view_indx = true;
-
-            temp_acc.1 = 0;
-            temp_acc.2 = 0.0; // RESET TEMP_ACC
+            state.0 = window.iter().sum();
+        } else {
+            let elem_out = data[index - 1];
+            let elem_in = window.last().unwrap();
+            state.0 = state.0 - elem_out + elem_in;
         }
 
+        let average = state.0 as f64 / window_size as f64;
 
-        
-        
-        println!("acc {:?}, start: {} ", acc, start);
-    (acc, temp_acc, (is_first_view_indx, start))
-    });
-
-
-    vec
+        Some((index, state.0, average))
+    }).collect()
+    
 
 }
 
