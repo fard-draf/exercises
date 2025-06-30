@@ -12,3 +12,7 @@ criterion = "0.6.0"
 [[bench]]
 name = "alloc_bench"
 harness = false
+
+[[bin]]
+name = "ex2_mem_list"
+path = "src/day_1/ex2_mem_list/main.rs"

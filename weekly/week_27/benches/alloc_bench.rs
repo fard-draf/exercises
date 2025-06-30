@@ -1,6 +1,6 @@
 // benches/my_benchmark.rs
 
-use criterion::{criterion_group, criterion_main, Criterion};
+use criterion::{Criterion, criterion_group, criterion_main};
 use std::hint::black_box;
 use week_27::MyData;
 // Remplace 'heap_cost_benchmark' par le nom de ton crate si différent
@@ -11,7 +11,10 @@ fn benchmark_allocations(c: &mut Criterion) {
         b.iter(|| {
             // TON CODE ICI: Crée une instance de MyData.
             // Utilise black_box pour que le compilateur n'optimise pas l'opération.
-            let data = MyData { value1: 42, value2: 100 };
+            let data = MyData {
+                value1: 42,
+                value2: 100,
+            };
             black_box(data);
         })
     });
@@ -20,14 +23,23 @@ fn benchmark_allocations(c: &mut Criterion) {
     c.bench_function("creation_heap", |b| {
         b.iter(|| {
             // TON CODE ICI: Crée une instance de MyData enveloppée dans un Box.
-            let boxed_data = Box::new(MyData { value1: 42, value2: 100 });
+            let boxed_data = Box::new(MyData {
+                value1: 42,
+                value2: 100,
+            });
             black_box(boxed_data);
         })
     });
 
     // --- Setup pour les benchmarks d'accès ---
-    let stack_data = MyData { value1: 42, value2: 100 };
-    let heap_data = Box::new(MyData { value1: 42, value2: 100 });
+    let stack_data = MyData {
+        value1: 42,
+        value2: 100,
+    };
+    let heap_data = Box::new(MyData {
+        value1: 42,
+        value2: 100,
+    });
 
     // --- Benchmark 3: Accès sur le Stack ---
     c.bench_function("access_stack", |b| {
