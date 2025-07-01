@@ -24,3 +24,7 @@ path = "src/day_2/ex1_mem/main.rs"
 [[bin]]
 name = "ex2_padding"
 path = "src/day_2/ex2_padding/main.rs"
+
+[[bin]]
+name = "ex4_align_to"
+path = "src/day_2/ex4_align_to/main.rs"
