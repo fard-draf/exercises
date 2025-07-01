@@ -1,22 +1,17 @@
-# 🦀 Rust Blockchain Exercises
-
-**Contexte :** Reconversion maritime → Expert Solana Raw  
-**Objectif :** Maîtrise des systèmes bas niveau pour blockchain  
-**Approche :** 6h/jour, discipline, raw-first
 
 ## Structure
 
 ```
 fundamentals/        # Bases Rust (bit ops, memory, unsafe)
 blockchain/          # Applications blockchain (compression, crypto, serialization)  
-weekly-challenges/   # Défis hebdomadaires spécifiques
 sandbox/             # Tests et expérimentations
+exercices/	     # Exercices quotidiens 
 ```
 
 ## Focus Technique
 
 - **Bit manipulation** & optimisation mémoire
-- **Sérialisation** haute performance (format Solana)
+- **Sérialisation** haute performance
 - **Cryptographie** appliquée (PDAs, compression de clés)
 - **Systèmes embarqués** (contraintes IoT/LoRaWAN)
 
