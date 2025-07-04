@@ -28,3 +28,7 @@ path = "src/day_2/ex2_padding/main.rs"
 [[bin]]
 name = "ex4_align_to"
 path = "src/day_2/ex4_align_to/main.rs"
+
+[[bin]]
+name = "ex2_box_option"
+path = "src/day_4/ex2_box_option/main.rs"
