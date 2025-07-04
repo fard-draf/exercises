@@ -5,6 +5,7 @@ edition = "2024"
 
 [dependencies]
 criterion = "0.6.0"
+log = "0.4.27"
 
 
 
@@ -32,3 +33,7 @@ path = "src/day_2/ex4_align_to/main.rs"
 [[bin]]
 name = "ex2_box_option"
 path = "src/day_4/ex2_box_option/main.rs"
+
+[[bin]]
+name = "ex2_audit_log"
+path = "src/day_5/ex2_audit_log/main.rs"

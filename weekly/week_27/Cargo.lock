@@ -504,6 +504,7 @@ name = "week_27"
 version = "0.1.0"
 dependencies = [
  "criterion",
+ "log",
 ]
 
 [[package]]
