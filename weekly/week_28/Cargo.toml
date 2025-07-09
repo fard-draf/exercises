@@ -11,6 +11,10 @@ libc = "0.2.174"
 name = "day2_aos_soa"
 harness = false
 
+[[bench]]
+name = "day3_cache"
+harness = false
+
 [build-dependencies]
 cc = "1.0"
 
@@ -21,3 +25,7 @@ path = "src/day_1/ex1_libc_mem/main.rs"
 [[bin]]
 name = "ex3_ffi_add"
 path = "src/day_1/ex3_ffi_add/main.rs"
+
+[[bin]]
+name = "ex1_cache_line"
+path = "src/day_3/ex1_cache_line/main.rs"

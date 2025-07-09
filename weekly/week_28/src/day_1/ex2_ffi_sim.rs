@@ -1,29 +1,24 @@
 use std::ffi::CString;
 
 // lib.rs
-use libc::{c_char, c_double, __u64, __u32, uint64_t};
-
+use libc::{__u32, __u64, c_char, c_double, uint64_t};
 
 #[repr(C)]
 pub struct StableApiData {
     // TODO: Définissez les champs de la struct ici
     // en respectant les spécifications.
-    pub sad_c_double: [libc::c_double; 8 ], // f64 al8 offset 0
-    pub sad_uint64_t: f64,  // u64 al8 offset 64
-    pub sad_int32_t: u32, // u32 al4 offset 72
-    pub sad_c_char: *const libc::c_char, // *const al 8 offset 80 padding avant 4   
-    // taille finale = 80 + 8 = 88 
-
+    pub sad_c_double: [libc::c_double; 8], // f64 al8 offset 0
+    pub sad_uint64_t: f64,                 // u64 al8 offset 64
+    pub sad_int32_t: u32,                  // u32 al4 offset 72
+    pub sad_c_char: *const libc::c_char,   // *const al 8 offset 80 padding avant 4
+                                           // taille finale = 80 + 8 = 88
 }
 
 // TODO: Implémentez une fonction `create_stable_data` qui
 // alloue et retourne un pointeur vers une instance de StableApiData.
 // Attention à la gestion de la mémoire !
 
-
-    
 pub fn create_stable_data() -> *mut StableApiData {
-
     let cstring = CString::new("a1c1e1g1h1j").unwrap();
 
     let packet = StableApiData {
@@ -32,16 +27,11 @@ pub fn create_stable_data() -> *mut StableApiData {
         sad_int32_t: 0xffff,
         sad_c_char: CString::into_raw(cstring),
     };
-    
+
     let boxed_data = Box::new(packet);
 
     Box::into_raw(boxed_data)
-    
-    
 }
-
-
-
 
 #[cfg(test)]
 mod tests {
