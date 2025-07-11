@@ -58,14 +58,12 @@ fn friendly_benchmark(c: &mut Criterion) {
     c.bench_function("Cache Friendly Access", |b| {
         b.iter(|| {
             let mut sum = 0u64;
-            let mut current_idx = 0; // On commence toujours à l'indice 0
+            let mut current_idx = 0;
 
-            // On boucle VEC_SIZE fois en suivant la chaîne
             for _ in 0..data.len() {
                 let item = &data[current_idx];
                 sum = sum.wrapping_add(black_box(item.a) + black_box(item.g));
 
-                // On passe à l'élément suivant de la chaîne
                 current_idx = black_box(item.next_idx);
             }
             black_box(sum);
@@ -88,14 +86,12 @@ fn hostile_benchmark(c: &mut Criterion) {
     c.bench_function("Cache Hostile Access", |b| {
         b.iter(|| {
             let mut sum = 0u64;
-            let mut current_idx = 0; // On commence toujours à l'indice 0
+            let mut current_idx = 0;
 
-            // On boucle VEC_SIZE fois en suivant la chaîne
             for _ in 0..data.len() {
                 let item = &data[current_idx];
                 sum = sum.wrapping_add(black_box(item.a) + black_box(item.g));
 
-                // On passe à l'élément suivant de la chaîne
                 current_idx = black_box(item.next_idx);
             }
             black_box(sum);

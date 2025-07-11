@@ -15,6 +15,10 @@ harness = false
 name = "day3_cache"
 harness = false
 
+[[bench]]
+name = "day4_false_sharing"
+harness = false
+
 [build-dependencies]
 cc = "1.0"
 
