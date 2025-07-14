@@ -1,1 +1,1 @@
-/mnt/repo/dev/warehouse/playground/exercises/weekly/week_29/target/debug/week_29: /mnt/repo/dev/warehouse/playground/exercises/weekly/week_29/src/main.rs
+/mnt/repo/dev/warehouse/playground/exercises/weekly/week_29/target/debug/week_29: /mnt/repo/dev/warehouse/playground/exercises/weekly/week_29/src/day_1/ex1_compare_bits.rs /mnt/repo/dev/warehouse/playground/exercises/weekly/week_29/src/day_1/ex2_toggle_bit.rs /mnt/repo/dev/warehouse/playground/exercises/weekly/week_29/src/day_1/mod.rs /mnt/repo/dev/warehouse/playground/exercises/weekly/week_29/src/main.rs

@@ -2,7 +2,9 @@
 pub fn compare_bits(a: u8, b: u8) -> u32 {
     // TODO: Utilisez l'opérateur XOR (^) pour trouver les bits qui diffèrent entre 'a' et 'b'.
     // TODO: Utilisez la méthode .count_ones() sur le résultat pour compter ces différences.
-    unimplemented!("Implémentez la logique ici");
+    let diff = a ^ b;
+    diff.count_ones()
+
 }
 
 fn main() {
