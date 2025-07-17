@@ -1,6 +1,13 @@
-[package]
-name = "week_29"
-version = "0.1.0"
-edition = "2024"
+[workspace]
+resolver = "2"
+members = [
+    "day_1",
+    "day_2",
+    "day_3",
+]
 
-[dependencies]
+[profile.dev]
+panic = "abort"
+
+[profile.release]
+panic = "abort"

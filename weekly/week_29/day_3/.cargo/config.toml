@@ -1,0 +1,4 @@
+[build]
+# -C panic=abort : stratégie d'abort en cas de panic.
+# -C link-arg=-nostdlib : aucune bibliothèque système C.
+rustflags = ["-C", "panic=abort", "-C", "link-arg=-nostdlib"]
