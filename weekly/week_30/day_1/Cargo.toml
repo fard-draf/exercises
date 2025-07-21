@@ -1,0 +1,30 @@
+[package]
+name = "day_1"
+version = "0.1.0"
+edition = "2024"
+[dependencies]
+
+
+[[bin]]
+name = "ex1_mut"
+path = "ex1_mut/main.rs"
+
+[[bin]]
+name = "ex2_mut"
+path = "ex2_mut/main.rs"
+
+[[bin]]
+name = "ex3_refcell"
+path = "ex3_refcell/main.rs"
+
+[[bin]]
+name = "ex4_bench"
+path = "ex4_bench/main.rs"
+
+[[bin]]
+name = "ex5_mem"
+path = "ex5_mem/main.rs"
+
+[[bin]]
+name = "ex6_parsing"
+path = "ex6_parsing/main.rs"
