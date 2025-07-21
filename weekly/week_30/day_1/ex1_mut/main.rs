@@ -31,12 +31,8 @@ impl PeripheralManager {
     /// du périphérique spécifié par `id`.
     pub fn get_mut(&mut self, id: PeripheralId) -> &mut u8 {
         match id {
-            PeripheralId::I2c => {
-                &mut self.i2c.data
-            }
-            PeripheralId::Uart => {
-                &mut self.uart.data
-            }
+            PeripheralId::I2c => &mut self.i2c.data,
+            PeripheralId::Uart => &mut self.uart.data,
         }
     }
 }
@@ -49,8 +45,8 @@ fn main() {
     // Analysez l'erreur. Pourquoi le compilateur refuse-t-il ?
     // Même si `uart` et `i2c` sont des champs distincts,
     // pourquoi l'emprunt de `&mut self` bloque-t-il tout ?
-    
-    // Le compilateur refuse car nous sommes en train d'utiliser une reference de PeripheralManager en mutable. Donc une seule ref mut dans le scope. De plus i2c_data demande une ref mut egalement -> Double erreur: 2 ref mut dans le meme scope. 
+
+    // Le compilateur refuse car nous sommes en train d'utiliser une reference de PeripheralManager en mutable. Donc une seule ref mut dans le scope. De plus i2c_data demande une ref mut egalement -> Double erreur: 2 ref mut dans le meme scope.
 
     // let uart_data = manager.get_mut(PeripheralId::Uart);
     // let i2c_data = manager.get_mut(PeripheralId::I2c);
@@ -68,7 +64,7 @@ mod tests {
 
     #[test]
     #[should_panic] // Ce test est conçu pour échouer à la compilation, pas à l'exécution.
-                    // C'est une illustration, pas un test fonctionnel classique.
+    // C'est une illustration, pas un test fonctionnel classique.
     fn test_double_borrow_fails_compilation() {
         let mut manager = PeripheralManager::new();
         let _uart_data = manager.get_mut(PeripheralId::Uart);
