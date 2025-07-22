@@ -1,0 +1,19 @@
+[package]
+name = "day_2"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+
+
+[[bin]]
+name = "ex1_gssm"
+path = "ex1_gssm/main.rs"
+
+[[bin]]
+name = "ex2_variance"
+path = "ex2_variance/main.rs"
+
+[[bin]]
+name = "ex3_eventhandler"
+path = "ex3_eventhandler/main.rs"
