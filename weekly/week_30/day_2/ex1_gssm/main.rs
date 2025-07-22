@@ -16,25 +16,26 @@ impl<'a> Iterator for FrameIterator<'a> {
         }
 
         loop {
-            let raw_frame = match core::str::from_utf8(self.buffer) {
-                Ok(value) => value,
-                Err(_) => return None,
-            };
 
-            if let Some((first, rest)) = raw_frame.split_once("\r\n") {
-                self.buffer = rest.as_bytes();
+            if let Some(position) = self.buffer.iter().position(|e| *e == b'\n') {
+            
+                let first = &self.buffer[..position - 1usize];
+                let rest = &self.buffer[position + 1 ..];
+                self.buffer = rest;
                 if let Some(data) = parse_tram(first) {
                     return Some(NmeaFrame {
-                        data: data.as_bytes(),
-                    });
-                } else {
-                    continue;
-                }
+                            data: data,
+                        });
+                    } else {
+                        continue;
+                    }
+
             } else {
-                self.buffer = b"";
-                if let Some(data) = parse_tram(raw_frame) {
+
+                if let Some(data) = parse_tram(self.buffer) {
+                    self.buffer = b"";
                     return Some(NmeaFrame {
-                        data: data.as_bytes(),
+                        data: data,
                     });
                 } else {
                     return None;
@@ -42,22 +43,34 @@ impl<'a> Iterator for FrameIterator<'a> {
             }
         }
     }
+    
 }
 
-fn parse_tram<'a>(input: &'a str) -> Option<&'a str> {
-    if let Some((_, data)) = input.split_once('$') {
-        match data {
-            gp if gp.starts_with("GP") && gp.chars().rev().nth(2) == Some('*') => return Some(gp),
+fn parse_tram<'a>(input: &'a [u8]) -> Option<&'a [u8]> {
+    if let Some(position) = input.iter().position(|e| *e == b'$') {
+        match &input[position..] {
+            
+            gp if gp[0] == b'$'  => {
+                if let Some(stars) = gp.iter().rev().nth(2) {
+                    if *stars == b'*' {         
+                        return Some(gp)
+                    } else { 
+                        return None
+                    }  
+                } else { 
+                    return None
+                }
+            } 
             _ => return None,
         }
     } else {
-        return None;
+        return None
     }
 }
 
 fn main() {
-    // let raw_tram = b"test\r\nd$GPGGA,123519,4807.038,N,01131.000,E,1,08,0.9,545.4,M,46.9,M,,*47\r\n$GPZDA,201530.00,04,07,2002,00,00*60\r\nbisous\r\nlol\r\n$GPZDA,201530.00,04,07,2002,00,00*60";
-    let raw_tram = b"polluedhere$GPGGA,123519,4807.038,N,01131.000,E,1,08,0.9,545.4,M,46.9,M,,*47\r\n$GPZDA,201530.00,04,07,2002,00,00*60\r\nfalseendingtram\r\n$GPZDA,201530.00,04,07,2002,";
+    let raw_tram = b"teyuiopst\r\nd$GPGGA,123519,4807.038,N,01131.000,E,1,08,0.9,545.4,M,46.9,M,,*47\r\n$GPZDA,201530.00,04,07,2002,00,00*60\r\nb1s515us\r\nl051516\r\n$GPZMMMA,201530.00,04,07,2002,00,00*60";
+    // let raw_tram = b"polluedhere$GPGGA,123519,4807.038,N,01131.000,E,1,08,0.9,545.4,M,46.9,M,,*47\r\n$GPZDA,201530.00,04,07,2002,00,00*60\r\nfalseendingtram\r\n$GPZDA,201530.00,04,07,2002,";
     let iter = FrameIterator { buffer: raw_tram };
 
     for tram in iter {
@@ -77,14 +90,15 @@ mod test {
         let raw_tram = b"$GPGGA,123519,4807.038,N,01131.000,E,1,08,0.9,545.4,M,46.9,M,,*47\r\n$GPZDA,201530.00,04,07,2002,00,00*60";
         let mut raw_iterator = FrameIterator { buffer: raw_tram };
         let pretty1 = NmeaFrame {
-            data: b"GPGGA,123519,4807.038,N,01131.000,E,1,08,0.9,545.4,M,46.9,M,,*47",
+            data: b"$GPGGA,123519,4807.038,N,01131.000,E,1,08,0.9,545.4,M,46.9,M,,*47",
         };
         let pretty2 = NmeaFrame {
-            data: b"GPZDA,201530.00,04,07,2002,00,00*60",
+            data: b"$GPZDA,201530.00,04,07,2002,00,00*60",
         };
         let iter1 = raw_iterator.next().unwrap();
         let iter2 = raw_iterator.next().unwrap();
         assert_eq!(iter1, pretty1);
+        // println!("iter1: {:?}", iter1);
         assert_eq!(iter2, pretty2);
     }
 
@@ -102,10 +116,10 @@ mod test {
         let raw_tram = b"polluedhere$GPGGA,123519,4807.038,N,01131.000,E,1,08,0.9,545.4,M,46.9,M,,*47\r\n$GPZDA,201530.00,04,07,2002,00,00*60\r\nfalseendingtram";
         let mut raw_iterator = FrameIterator { buffer: raw_tram };
         let pretty1 = NmeaFrame {
-            data: b"GPGGA,123519,4807.038,N,01131.000,E,1,08,0.9,545.4,M,46.9,M,,*47",
+            data: b"$GPGGA,123519,4807.038,N,01131.000,E,1,08,0.9,545.4,M,46.9,M,,*47",
         };
         let pretty2 = NmeaFrame {
-            data: b"GPZDA,201530.00,04,07,2002,00,00*60",
+            data: b"$GPZDA,201530.00,04,07,2002,00,00*60",
         };
         let iter1 = raw_iterator.next().unwrap();
         let iter2 = raw_iterator.next().unwrap();
@@ -120,10 +134,10 @@ mod test {
         let raw_tram = b"$GPGGA,123519,4807.038,N,01131.000,E,1,08,0.9,545.4,M,46.9,M,,*47\r\nUasdp'i'j;iuBF\r\n$GPZDA,201530.00,04,07,2002,00,00*60\r\n";
         let mut raw_iterator = FrameIterator { buffer: raw_tram };
         let pretty1 = NmeaFrame {
-            data: b"GPGGA,123519,4807.038,N,01131.000,E,1,08,0.9,545.4,M,46.9,M,,*47",
+            data: b"$GPGGA,123519,4807.038,N,01131.000,E,1,08,0.9,545.4,M,46.9,M,,*47",
         };
         let pretty2 = NmeaFrame {
-            data: b"GPZDA,201530.00,04,07,2002,00,00*60",
+            data: b"$GPZDA,201530.00,04,07,2002,00,00*60",
         };
         let iter1 = raw_iterator.next().unwrap();
         let iter2 = raw_iterator.next().unwrap();
@@ -136,7 +150,7 @@ mod test {
         let raw_tram = b"$GPGGA,123519,4807.038,N,01131.000,E,1,08,0.9,545.4\r\n$GPZDA,201530.00,04,07,2002,00,00*60\r\n";
         let mut raw_iterator = FrameIterator { buffer: raw_tram };
         let pretty2 = NmeaFrame {
-            data: b"GPZDA,201530.00,04,07,2002,00,00*60",
+            data: b"$GPZDA,201530.00,04,07,2002,00,00*60",
         };
         let iter1 = raw_iterator.next().unwrap();
         assert_eq!(iter1, pretty2);
