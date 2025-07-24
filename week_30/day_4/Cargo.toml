@@ -1,0 +1,21 @@
+[package]
+name = "day_4"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+thiserror = "2.0.12"
+
+[[bin]]
+name = "ex1_parser_no_std"
+path = "ex1_parser_no_std/main.rs"
+
+[[bin]]
+name = "ex2_lifetimes"
+path = "ex2_lifetimes/main.rs"
+
+[[bin]]
+name = "ex3_vanguard"
+path = "ex3_vanguard/main.rs"
+
+
