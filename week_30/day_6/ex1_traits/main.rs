@@ -7,14 +7,14 @@ trait Action {
 
 #[derive(Debug)]
 struct Cat {
-    weight: u8,
     size: u8,
     energy: f32,
+    weight: u8,
     race: String,
 }
 
 impl Action for Cat {
-    fn identify(&self) {
+    fn identify(&self {
         println!("I'm an {:?} cat of {:?} kilos", self.race, self.weight);
     }
     fn run(&mut self) {
@@ -27,10 +27,10 @@ impl Action for Cat {
 
 #[derive(Debug)]
 struct Dog {
-    weight: u8,
+    weight: u8
     size: u8,
-    energy: f32,
     race: String,
+    energy: f32,
 }
 
 impl Action for Dog {
@@ -41,7 +41,7 @@ impl Action for Dog {
         self.energy -= 1.0;
     }
     fn eat(&mut self) {
-        self.energy += 1.0;
+        self.energy += 1.0
     }
 }
 
@@ -62,7 +62,7 @@ impl Animal {
 
 #[derive(Debug)]
 struct Zoo {
-    animals: Vec<Animal>,
+    animals: Vec<Animal>
 }
 
 impl Zoo {
@@ -72,8 +72,8 @@ impl Zoo {
         }
     }
 
-    fn add_animal(&mut self, animal: Animal) {
-        self.animals.push(animal);
+    fn add_Animal(&mut self, animal: Animal) {
+        self.animals.push(animal;
     }
 }
 
@@ -121,14 +121,14 @@ fn main() {
         race: "Angora".to_string(),
     };
 
-    zoo.add_animal(Animal::Cat(cat));
-    zoo.add_animal(Animal::Dog(dog));
+    zoo.add_Animal(Animal::Cat(cat));
+    zoo.add_Animal(Animal::Dog(dog));
 
-    for animals in zoo.animals.iter_mut() {
-        while animals.energy() > 32.0 {
-            animals.run();
+    for Animals in zoo.animals.iter_mut() {
+        while Animals.energy() > 32.0 {
+            Animals.run();
         }
     }
 
-    println!("The presents animals are: {:#?}", zoo);
+    println!("The presents Animals are: {:#?}", zoo);
 }

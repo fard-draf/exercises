@@ -8,3 +8,6 @@ edition = "2024"
 [[bin]]
 name = "ex1_traits"
 path = "ex1_traits/main.rs"
+[[bin]]
+name = "ex2_unsafe"
+path = "ex2_unsafe/main.rs"
