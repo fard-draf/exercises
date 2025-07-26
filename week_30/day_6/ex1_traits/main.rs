@@ -51,6 +51,15 @@ enum Animal {
     Cat(Cat),
 }
 
+impl Animal {
+    fn energy(&self) -> f32 {
+        match self {
+            Animal::Dog(dog) => dog.energy,
+            Animal::Cat(cat) => cat.energy,
+        }
+    }
+}
+
 #[derive(Debug)]
 struct Zoo {
     animals: Vec<Animal>,
@@ -65,6 +74,29 @@ impl Zoo {
 
     fn add_animal(&mut self, animal: Animal) {
         self.animals.push(animal);
+    }
+}
+
+impl Action for Animal {
+    fn identify(&self) {
+        match self {
+            Animal::Dog(dog) => dog.identify(),
+            Animal::Cat(cat) => cat.identify(),
+        }
+    }
+
+    fn run(&mut self) {
+        match self {
+            Animal::Dog(dog) => dog.run(),
+            Animal::Cat(cat) => cat.run(),
+        }
+    }
+
+    fn eat(&mut self) {
+        match self {
+            Animal::Dog(dog) => dog.eat(),
+            Animal::Cat(cat) => cat.eat(),
+        }
     }
 }
 
@@ -89,9 +121,14 @@ fn main() {
         race: "Angora".to_string(),
     };
 
-    cat.run();
     zoo.add_animal(Animal::Cat(cat));
     zoo.add_animal(Animal::Dog(dog));
+
+    for animals in zoo.animals.iter_mut() {
+        while animals.energy() > 32.0 {
+            animals.run();
+        }
+    }
 
     println!("The presents animals are: {:#?}", zoo);
 }
