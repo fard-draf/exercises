@@ -1,0 +1,10 @@
+[package]
+name = "day_6"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+
+[[bin]]
+name = "ex1_traits"
+path = "ex1_traits/main.rs"
