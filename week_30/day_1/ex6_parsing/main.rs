@@ -90,3 +90,19 @@ fn main() {
         println!("Trame parsée : {:?}", frame);
     }
 }
+
+#[cfg(test)]
+mod test {
+    use std::num::ParseFloatError;
+
+    use super::*;
+
+    #[test]
+    fn test_valid_str() {
+        let input_stream = "ID=1;TEMP=20;STATUS=OK;ID=2;TEMP=21;STATUS=WARN;ID=3;TEMP=22;STATUS=OK";
+        let mut parser = FrameParser {
+            buffer: input_stream,
+        };
+        let next_buffer = parser.next();
+    }
+}

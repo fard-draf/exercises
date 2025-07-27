@@ -16,55 +16,45 @@ impl<'a> Iterator for FrameIterator<'a> {
         }
 
         loop {
-
             if let Some(position) = self.buffer.iter().position(|e| *e == b'\n') {
-            
                 let first = &self.buffer[..position - 1usize];
-                let rest = &self.buffer[position + 1 ..];
+                let rest = &self.buffer[position + 1..];
                 self.buffer = rest;
                 if let Some(data) = parse_tram(first) {
-                    return Some(NmeaFrame {
-                            data: data,
-                        });
-                    } else {
-                        continue;
-                    }
-
+                    return Some(NmeaFrame { data: data });
+                } else {
+                    continue;
+                }
             } else {
-
                 if let Some(data) = parse_tram(self.buffer) {
                     self.buffer = b"";
-                    return Some(NmeaFrame {
-                        data: data,
-                    });
+                    return Some(NmeaFrame { data: data });
                 } else {
                     return None;
                 }
             }
         }
     }
-    
 }
 
 fn parse_tram<'a>(input: &'a [u8]) -> Option<&'a [u8]> {
     if let Some(position) = input.iter().position(|e| *e == b'$') {
         match &input[position..] {
-            
-            gp if gp[0] == b'$'  => {
+            gp if gp[0] == b'$' => {
                 if let Some(stars) = gp.iter().rev().nth(2) {
-                    if *stars == b'*' {         
-                        return Some(gp)
-                    } else { 
-                        return None
-                    }  
-                } else { 
-                    return None
+                    if *stars == b'*' {
+                        return Some(gp);
+                    } else {
+                        return None;
+                    }
+                } else {
+                    return None;
                 }
-            } 
+            }
             _ => return None,
         }
     } else {
-        return None
+        return None;
     }
 }
 

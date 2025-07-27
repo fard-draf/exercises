@@ -1,57 +1,65 @@
-pub trait Bus {
-    fn send(&self, data: &[u8]) -> Result<(), BusError> {
-        Ok(println!("Data sended: {:?}", data))
-    }
+use embedded_hal::{
+    digital::Error,
+    i2c::{I2c, Operation, SevenBitAddress},
+    *,
+};
 
-    fn receive<'a>(&'a mut self) -> Result<&'a [u8], BusError>;
-}
-
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq)]
 enum BusError {
     TxFailed,
     RxFailed,
 }
 
-pub struct MockCanBus {
-    pub buffer: [u8; 8],
-}
-
-impl Bus for MockCanBus {
-    fn receive<'a>(&'a mut self) -> Result<&'a [u8], BusError> {
-        Ok(&self.buffer)
+impl i2c::Error for BusError {
+    fn kind(&self) -> i2c::ErrorKind {
+        match *self {
+            BusError::TxFailed => i2c::ErrorKind::Bus,
+            BusError::RxFailed => i2c::ErrorKind::Bus,
+        }
     }
 }
 
-pub struct MockN2kBus {
-    pub can_id: [u8; 29],
+struct MockCanBus {
+    buffer: [u8; 7],
 }
 
-impl Bus for MockN2kBus {
-    fn receive<'a>(&'a mut self) -> Result<&'a [u8], BusError> {
-        Ok(&self.can_id)
-    }
-}
-pub struct SensorDriver<'a, B: Bus> {
-    bus: &'a mut B,
+impl embedded_hal::i2c::ErrorType for MockCanBus {
+    type Error = BusError;
 }
 
-impl<'a, B: Bus> SensorDriver<'a, B> {
-    pub fn new(bus: &'a mut B) -> Self {
-        Self { bus }
-    }
-
-    pub fn read_sensor_id(&mut self) -> Result<&[u8], BusError> {
-        self.bus.receive()
+impl I2c<SevenBitAddress> for MockCanBus {
+    fn transaction(
+        &mut self,
+        address: SevenBitAddress,
+        operations: &mut [i2c::Operation<'_>],
+    ) -> Result<(), Self::Error> {
+        Ok(println!("address: {:?}", address))
     }
 }
 
-fn main() {
-    let mut mock = MockCanBus { buffer: [5u8; 8] };
-    let data = [6u8; 29];
-    let mut sensor = SensorDriver { bus: &mut mock };
+pub struct SensorDriver<'a, B: i2c::I2c> {
+    i2c_mod: &'a mut B,
+}
 
-    let mut can = MockN2kBus { can_id: data };
-    let mut sensor2 = SensorDriver { bus: &mut can };
-    println!("{:?}", sensor2.read_sensor_id());
-    println!("{:?}", sensor.read_sensor_id());
+impl<'a, B: i2c::I2c> SensorDriver<'a, B> {
+    pub fn new(i2c: &'a mut B) -> Self {
+        Self { i2c_mod: i2c }
+    }
+
+    pub fn read_transaction(
+        &mut self,
+        address: u8,
+        operations: &mut [embedded_hal::i2c::Operation],
+    ) -> Result<(), <B as embedded_hal::i2c::ErrorType>::Error> {
+        self.i2c_mod.transaction(address, operations)
+    }
+}
+
+fn main() -> Result<(), BusError> {
+    let mut mock = MockCanBus { buffer: [5u8; 7] };
+    let mut sensor = SensorDriver::new(&mut mock);
+    let items = &mut [0x5, 0x19];
+    let address = 0x3A;
+    sensor.read_transaction(address, &mut [Operation::Read(items)]);
+    Ok(())
 }
