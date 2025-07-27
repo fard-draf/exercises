@@ -1,3 +1,5 @@
+use std::ops::{Index, IndexMut};
+
 #[derive(Debug)]
 pub struct RawVec<T> {
     pub ptr: *mut T,
@@ -62,6 +64,26 @@ impl<T> RawVec<T> {
     }
 }
 
+impl<T> Index<usize> for RawVec<T> {
+    type Output = T;
+
+    fn index(&self, index: usize) -> &Self::Output {
+        if index >= self.len {
+            core::panic!("Out of limits");
+        }
+        unsafe { &*self.ptr.add(index) }
+    }
+}
+
+impl<T> IndexMut<usize> for RawVec<T> {
+    fn index_mut(&mut self, index: usize) -> &mut Self::Output {
+        if index >= self.len {
+            core::panic!("Out of limits");
+        }
+        unsafe { &mut *self.ptr.add(index) }
+    }
+}
+
 impl<T> Drop for RawVec<T> {
     fn drop(&mut self) {
         if self.cap > 0 {
@@ -93,7 +115,11 @@ fn main() {
         raw_vec.push(i);
     }
     dbg!(&raw_vec);
-    while let Some(val) = raw_vec.pop() {
-        println!("VALUE: {}", val);
-    }
+    // while let Some(val) = raw_vec.pop() {
+    //     println!("VALUE: {}", val);
+    // }
+
+    let value = raw_vec[10];
+    dbg!(value);
+    println!("{:010b}", &value);
 }
