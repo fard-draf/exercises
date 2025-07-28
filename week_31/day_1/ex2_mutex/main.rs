@@ -68,6 +68,7 @@ impl<T> Drop for MutexGuard<'_, T> {
     // Le MutexGuard est drop -> Le travail a ete effectuee.
     // Nous pouvons ainsi liberer le verrou (false), et indiquer au CPU que nos données sont pretes pour
     // etre partagees avec les autres threads (Ordering::Release)
+    // TEST SYNC
     fn drop(&mut self) {
         self.mutex
             .locked
