@@ -16,3 +16,16 @@ path = "ex2_mutex/main.rs"
 [[bin]]
 name = "ex3_unsafe"
 path = "ex3_unsafe/main.rs"
+
+[[bin]]
+name = "ex4_raw"
+path = "ex4_raw/main.rs"
+
+[[bin]]
+name = "ex5_raw"
+path = "ex5_raw/main.rs"
+
+[[bin]]
+name = "ex6_raw"
+path = "ex6_raw/main.rs"
+

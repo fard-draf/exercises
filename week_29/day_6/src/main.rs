@@ -10,8 +10,6 @@ fn main() {
     let data_log = DataLogger::default();
     ws_1.add_observer(&temp_display);
     ws_1.add_observer(&data_log);
-
-    ws_1.set_measurement(15.5, 65.0);
-
-    println!("data collected: {:#?}", ws_1)
+    println!("data collected: {:#?}", ws_2)
+let x = asd ;    let asd = sd ;
 }
