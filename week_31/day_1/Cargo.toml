@@ -8,3 +8,7 @@ edition = "2024"
 [[bin]]
 name = "ex1_refcell"
 path = "ex1_refcell/main.rs"
+
+[[bin]]
+name = "ex2_mutex"
+path = "ex2_mutex/main.rs"
