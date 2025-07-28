@@ -1,0 +1,10 @@
+[package]
+name = "day_1"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+
+[[bin]]
+name = "ex1_refcell"
+path = "ex1_refcell/main.rs"
