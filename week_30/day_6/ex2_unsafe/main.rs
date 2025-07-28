@@ -97,8 +97,11 @@ impl<T> Drop for RawVec<T> {
     fn drop(&mut self) {
         if self.cap > 0 {
             if self.len > 0 {
-                let slice = unsafe { std::slice::from_raw_parts_mut(self.ptr, self.len) };
-                unsafe { std::ptr::drop_in_place(slice) };
+                for e in 0..self.len {
+                    let ptr = unsafe { self.ptr.add(e) };
+
+                    unsafe { std::ptr::drop_in_place(ptr) };
+                }
             }
             let layout = match alloc::Layout::array::<T>(self.cap) {
                 Ok(l) => l,
