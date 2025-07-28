@@ -12,3 +12,7 @@ path = "ex1_refcell/main.rs"
 [[bin]]
 name = "ex2_mutex"
 path = "ex2_mutex/main.rs"
+
+[[bin]]
+name = "ex3_unsafe"
+path = "ex3_unsafe/main.rs"

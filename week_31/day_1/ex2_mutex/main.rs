@@ -13,6 +13,8 @@ pub struct MutexGuard<'a, T> {
     mutex: &'a Mutex<T>,
 }
 
+trait Courgette {}
+
 unsafe impl<T: Send> Send for Mutex<T> {}
 
 unsafe impl<T: Send> Sync for Mutex<T> {}
