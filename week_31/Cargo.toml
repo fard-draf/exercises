@@ -1,5 +1,6 @@
 [workspace]
 resolver = "3"
 members = [
-  "day_1"
-]
+  "day_1",
+  "day_2/ex1_parser"
+, "day_2/ex2_lifetimes", "day_2/ex3_traits", "day_2/ex4_traits"]

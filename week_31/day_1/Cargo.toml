@@ -29,3 +29,7 @@ path = "ex5_raw/main.rs"
 name = "ex6_raw"
 path = "ex6_raw/main.rs"
 
+[[bin]]
+name = "ex7_raw"
+path = "ex7_raw/main.rs"
+
