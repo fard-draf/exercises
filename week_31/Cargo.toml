@@ -3,4 +3,4 @@ resolver = "3"
 members = [
   "day_1",
   "day_2/ex1_parser"
-, "day_2/ex2_lifetimes", "day_2/ex3_traits", "day_2/ex4_traits"]
+, "day_2/ex2_lifetimes", "day_2/ex3_traits", "day_2/ex4_traits", "day_3/ex1_pin", "day_3/ex2_phantom"]
